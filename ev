@@ -12,6 +12,8 @@ source "$EV_HOME/lib/extract.sh"
 source "$EV_HOME/lib/export.sh"
 
 EV_EXTRACTOR="$EV_HOME/libexec/ev-extract"   # rg --pre / 미리보기용 텍스트 추출기
+EV_EXPORT_DIR="${EV_EXPORT_DIR:-$HOME}"       # export/zip 저장 위치
+EV_CLIP="${EV_CLIP:-pbcopy}"                  # 클립보드 명령 (테스트에서 override)
 
 # ── 상태 헬퍼 ────────────────────────────────────────────────
 _ev_hidden() { cat "$EV_STATE/hidden"; }
@@ -157,6 +159,42 @@ _ev_cli_to_txt() {          # ev --to-txt DIR [OUTDIR]
   print "변환 완료: ${count}개"
 }
 
+# ── TUI export 액션 (선택분, 없으면 현재 항목 = fzf {+f}) ──
+_ev_export_results() {      # arg: 선택 결과 라인이 담긴 파일 → Markdown 저장
+  local listfile="$1" ts out n
+  [ -f "$listfile" ] || { print "[ERR] 선택 없음"; return 0; }
+  ts="$(date +%Y%m%d-%H%M%S)"
+  out="$EV_EXPORT_DIR/ev-export-$ts.md"
+  {
+    printf '# ev export — %s\n\n' "$ts"
+    ev_strip_ansi < "$listfile" | ev_export_md
+  } > "$out"
+  n="$(ev_strip_ansi < "$listfile" | grep -c .)"
+  print "[OK] ${n}건 저장 → $out"
+}
+
+_ev_copy_paths() {          # arg: 선택 결과 라인 파일 → 경로만 클립보드
+  local listfile="$1" paths n
+  [ -f "$listfile" ] || { print "[ERR] 선택 없음"; return 0; }
+  paths="$(ev_strip_ansi < "$listfile" | ev_export_paths)"
+  printf '%s\n' "$paths" | eval "$EV_CLIP"
+  n="$(printf '%s\n' "$paths" | grep -c .)"
+  print "[OK] 경로 ${n}개 복사됨"
+}
+
+_ev_zip_files() {           # arg: 선택 결과 라인 파일 → 해당 파일들 zip
+  local listfile="$1" ts out p
+  [ -f "$listfile" ] || { print "[ERR] 선택 없음"; return 0; }
+  local files=()
+  while IFS= read -r p; do [ -n "$p" ] && files+=("$p"); done \
+    < <(ev_strip_ansi < "$listfile" | ev_export_paths)
+  [ "${#files[@]}" -eq 0 ] && { print "[ERR] 파일 없음"; return 0; }
+  ts="$(date +%Y%m%d-%H%M%S)"
+  out="$EV_EXPORT_DIR/ev-files-$ts.zip"
+  zip -q "$out" "${files[@]}" 2>/dev/null
+  print "[OK] ${#files[@]}개 → $out"
+}
+
 # ── 의존성 자동 설치 ─────────────────────────────────────────
 _ev_ensure_deps() {
   local missing
@@ -198,7 +236,7 @@ _ev_main() {
   # fzf 자체 필터는 끄고(--disabled) 검색은 fd/rg가 담당한다.
   local self="$EV_HOME/ev"
   : | fzf \
-    --ansi --disabled --prompt 'search> ' \
+    --ansi --disabled --multi --prompt 'search> ' \
     --delimiter : \
     --preview "$self __preview {1} {2}" \
     --preview-window 'right,55%,border-left,+{2}/3' \
@@ -208,10 +246,15 @@ _ev_main() {
     --bind "ctrl-h:transform($self __toggle-hidden)" \
     --bind "enter:become($self __open {1} {2})" \
     --bind "ctrl-o:execute-silent(open -R {1})" \
-    --bind "ctrl-y:execute-silent(printf %s {1} | pbcopy)" \
+    --bind 'tab:toggle+down' \
+    --bind 'shift-tab:toggle+up' \
+    --bind 'ctrl-a:toggle-all' \
+    --bind "ctrl-e:transform-header($self __export-results {+f})" \
+    --bind "ctrl-y:transform-header($self __copy-paths {+f})" \
+    --bind "ctrl-g:transform-header($self __zip-files {+f})" \
     --bind '?:toggle-preview' \
     --bind 'esc:clear-query' \
-    --header 'Ctrl-F: 범위  Ctrl-H: 숨김  Enter: 열기  Ctrl-O: Finder  Ctrl-Y: 복사  ?: 미리보기  Esc: 검색어 지움  Ctrl-C: 종료'
+    --header $'Ctrl-F 범위  Ctrl-H 숨김  Enter 열기  Ctrl-O Finder  Esc 지움  Ctrl-C 종료\nTab 선택  Ctrl-A 전체  Ctrl-E 내보내기(md)  Ctrl-Y 복사  Ctrl-G zip'
 }
 
 _ev_help() {
@@ -243,8 +286,11 @@ case "${1:-}" in
   __search)        _ev_search ;;
   __cycle-scope)   _ev_cycle_scope ;;
   __toggle-hidden) _ev_toggle_hidden ;;
-  __preview)       shift; _ev_preview "$@" ;;
-  __open)          shift; _ev_open "$@" ;;
+  __preview)        shift; _ev_preview "$@" ;;
+  __open)           shift; _ev_open "$@" ;;
+  __export-results) shift; _ev_export_results "$@" ;;
+  __copy-paths)     shift; _ev_copy_paths "$@" ;;
+  __zip-files)      shift; _ev_zip_files "$@" ;;
   -l|--list)       shift; _ev_cli_list "$@" ;;
   -g|--grep)       shift; _ev_cli_grep "$@" ;;
   -x|--extract)    shift; ev_extract_text "${1:?사용법: ev -x <파일>}" ;;

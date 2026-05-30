@@ -62,3 +62,34 @@ _make_hwpx() {
   run "$EV" -g
   [ "$status" -ne 0 ]
 }
+
+@test "__export-results writes a markdown file with content rows" {
+  printf '%s\n' 'a.txt:1:1:hello' 'b.txt' > "$ROOT/sel.txt"
+  EV_EXPORT_DIR="$ROOT" run "$EV" __export-results "$ROOT/sel.txt"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"[OK]"* ]]
+  run bash -c "cat $ROOT/ev-export-*.md"
+  [[ "$output" == *'- `a.txt:1` — hello'* ]]
+  [[ "$output" == *'- `b.txt`'* ]]
+}
+
+@test "__copy-paths sends unique paths to the clipboard command" {
+  printf '%s\n' 'a.txt:1:1:x' 'a.txt:2:1:y' 'b.txt' > "$ROOT/sel.txt"
+  EV_CLIP="cat > $ROOT/clip.txt" run "$EV" __copy-paths "$ROOT/sel.txt"
+  [[ "$output" == *"[OK]"* ]]
+  run cat "$ROOT/clip.txt"
+  [[ "$output" == *"a.txt"* ]]
+  [[ "$output" == *"b.txt"* ]]
+  # a.txt 는 중복 제거되어 한 번만
+  [ "$(grep -c 'a.txt' "$ROOT/clip.txt")" -eq 1 ]
+}
+
+@test "__zip-files zips the selected files" {
+  printf 'x' > "$ROOT/f1.txt"; printf 'y' > "$ROOT/f2.txt"
+  printf '%s\n' "$ROOT/f1.txt:1:1:x" "$ROOT/f2.txt" > "$ROOT/sel.txt"
+  EV_EXPORT_DIR="$ROOT" run "$EV" __zip-files "$ROOT/sel.txt"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"[OK]"* ]]
+  run bash -c "ls $ROOT/ev-files-*.zip"
+  [ "$status" -eq 0 ]
+}

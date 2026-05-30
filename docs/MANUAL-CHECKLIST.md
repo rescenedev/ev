@@ -12,6 +12,11 @@
 - [ ] hwpx에서 `Enter`를 누르면 추출 텍스트가 pager(less)로 열린다.
 - [ ] docx에서 `Enter`를 누르면 기본 앱(Pages 등)으로 열린다.
 - [ ] `Ctrl-O`를 누르면 선택 파일이 Finder에 표시된다.
+- [ ] `Tab`으로 여러 항목을 마킹하고 `Ctrl-A`로 전체 토글된다.
+- [ ] `Ctrl-E`를 누르면 헤더에 `[OK] N건 저장 → ...md` 가 뜨고 파일이 생성된다.
+- [ ] `Ctrl-Y`로 선택 경로들이 클립보드에 복사된다(`pbpaste`로 확인).
+- [ ] `Ctrl-G`로 선택 파일들이 zip으로 모인다.
+- [ ] (CLI) `ev -l`, `ev -g 검색어`, `ev -x 파일.hwpx`, `ev --to-txt 폴더` 가 동작한다.
 - [ ] `Ctrl-H`로 숨김/.gitignore 포함이 토글된다(점(.)파일 등장/사라짐).
 - [ ] 항목 선택 후 `Enter`를 누르면 $EDITOR로 해당 줄에서 열린다.
 - [ ] `Ctrl-Y`로 경로가 클립보드에 복사된다(`pbpaste`로 확인).

@@ -66,12 +66,32 @@ ev ~/work     # 특정 폴더 검색
 | `Ctrl-H` | 숨김파일 / `.gitignore` 포함 토글 |
 | `Enter` | 텍스트 → `$EDITOR`(해당 줄) · hwpx → 추출 텍스트 pager · 그 외 → macOS 기본 앱 |
 | `Ctrl-O` | 선택 파일을 **Finder에서 열기** (위치 표시) |
-| `Ctrl-Y` | 경로 클립보드 복사 |
+| `Tab` | 항목 마킹(다중 선택) · `Shift-Tab` 해제 · `Ctrl-A` 전체 토글 |
+| `Ctrl-E` | 선택(없으면 현재) 결과를 **Markdown으로 내보내기** |
+| `Ctrl-Y` | 선택(없으면 현재) 경로 클립보드 복사 |
+| `Ctrl-G` | 선택(없으면 현재) 파일을 **zip으로 모으기** |
 | `?` | 미리보기 창 토글 |
 | `Esc` | 검색어 지우기 (비우면 파일 목록으로 복귀) |
 | `Ctrl-C` | 종료 |
 
 > 터미널 TUI는 `Cmd` 키 조합을 받지 못해서 Finder 열기는 `Ctrl-O`로 제공한다.
+> `Ctrl-E`/`Ctrl-G` 결과는 `$EV_EXPORT_DIR`(기본 `~`)에 `ev-export-<시각>.md` / `ev-files-<시각>.zip`로 저장된다.
+
+## 비대화형 / Export
+
+TUI 없이 파이프·스크립트로 쓰는 모드:
+
+```bash
+ev -l [디렉터리]              # 파일 목록 출력
+ev -g <검색어> [디렉터리]     # 내용 검색 출력 (hwpx/docx 포함)
+ev -x <파일>                  # 파일 평문 추출 (hwpx/docx/텍스트)
+ev --to-txt <디렉터리> [출력] # 폴더 내 hwpx/docx 일괄 .txt 변환
+
+# 포맷: --format paths|lines|md|csv|json  (또는 --json)
+ev -l ~/work --format json | jq .
+ev -g 유동성 ~/docs --format md > report.md
+ev -x 보고서.hwpx | less
+```
 
 ## 문서 내용 검색 (HWPX · DOCX)
 
@@ -115,6 +135,7 @@ ev (zsh)
 |:--|:--|
 | `EDITOR` | 열 때 사용할 에디터 (기본 `vi`) |
 | `EV_AUTO_INSTALL=0` | 의존성 자동 설치 끄기 (안내만) |
+| `EV_EXPORT_DIR` | `Ctrl-E`/`Ctrl-G` 내보내기 저장 위치 (기본 `~`) |
 | `EV_EXCLUDE_GLOBS` | 검색에서 제외할 글롭 (기본: `*.so *.dylib *.o *.a *.class *.pyc *.pyo *.exe *.dll *.node *.wasm`) |
 
 바이너리/컴파일 아티팩트(`.so` 등)는 기본적으로 검색 결과에서 제외된다.
