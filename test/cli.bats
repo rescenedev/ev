@@ -10,15 +10,20 @@ setup() {
 
 teardown() { rm -rf "$STATE" "$ROOT"; }
 
-@test "init creates state files defaulting to content mode, hidden off" {
+@test "init defaults to files mode (file list shown first), hidden off" {
   run "$EV" __init
   [ "$status" -eq 0 ]
-  [ "$(cat "$STATE/mode")" = "content" ]
+  [ "$(cat "$STATE/mode")" = "files" ]
   [ "$(cat "$STATE/hidden")" = "0" ]
 }
 
+@test "init accepts an explicit starting mode" {
+  run "$EV" __init content
+  [ "$(cat "$STATE/mode")" = "content" ]
+}
+
 @test "toggle-mode flips content -> files and emits enable-search + reload" {
-  "$EV" __init
+  "$EV" __init content
   run "$EV" __toggle-mode
   [ "$status" -eq 0 ]
   [ "$(cat "$STATE/mode")" = "files" ]
@@ -27,8 +32,7 @@ teardown() { rm -rf "$STATE" "$ROOT"; }
 }
 
 @test "toggle-mode flips files -> content and emits disable-search" {
-  "$EV" __init
-  "$EV" __toggle-mode            # -> files
+  "$EV" __init files
   run "$EV" __toggle-mode        # -> content
   [ "$(cat "$STATE/mode")" = "content" ]
   [[ "$output" == *"disable-search"* ]]
@@ -42,14 +46,13 @@ teardown() { rm -rf "$STATE" "$ROOT"; }
 }
 
 @test "on-change emits reload in content mode" {
-  "$EV" __init
+  "$EV" __init content
   FZF_QUERY="alpha" run "$EV" __on-change
   [[ "$output" == *"reload"* ]]
 }
 
 @test "on-change is a no-op in files mode" {
-  "$EV" __init
-  "$EV" __toggle-mode            # -> files
+  "$EV" __init files
   FZF_QUERY="alpha" run "$EV" __on-change
   [ -z "$output" ]
 }

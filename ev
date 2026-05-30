@@ -22,9 +22,10 @@ _ev_reload_action() {
 }
 
 # ── 서브커맨드 ───────────────────────────────────────────────
-_ev_init() {
-  printf 'content\n' > "$EV_STATE/mode"
-  printf '0\n'       > "$EV_STATE/hidden"
+_ev_init() {                # 인자: [mode]  기본 files (실행 즉시 파일 목록부터 보여줌)
+  local mode="${1:-files}"
+  printf '%s\n' "$mode" > "$EV_STATE/mode"
+  printf '0\n'          > "$EV_STATE/hidden"
 }
 
 _ev_run_argv() {            # stdin: 토큰(줄당 1개) → 실행
@@ -122,13 +123,16 @@ _ev_main() {
   trap 'rm -rf "$EV_STATE"' EXIT
   _ev_init
 
+  # 실행 즉시 디렉터리 전체 파일 목록(파일명 모드)부터 보여준다.
+  # 파일명 모드는 fzf 자체 fuzzy 필터를 쓰므로 --disabled를 켜지 않는다.
+  # Ctrl-F로 내용 검색(rg) 모드로 전환하면 toggle이 search를 disable한다.
   local self="$EV_HOME/ev"
   : | fzf \
-    --ansi --disabled --prompt 'rg> ' \
+    --ansi --prompt 'files> ' \
     --delimiter : \
     --preview "$self __preview {1} {2}" \
     --preview-window 'right,55%,border-left,+{2}/3' \
-    --bind "start:transform($self __on-change)+reload($self __search)" \
+    --bind "start:reload($self __list-files)" \
     --bind "change:transform($self __on-change)" \
     --bind "ctrl-f:transform($self __toggle-mode)" \
     --bind "ctrl-h:transform($self __toggle-hidden)" \
@@ -141,7 +145,7 @@ _ev_main() {
 
 # ── 디스패치 ─────────────────────────────────────────────────
 case "${1:-}" in
-  __init)          _ev_init ;;
+  __init)          shift; _ev_init "$@" ;;
   __search)        _ev_search ;;
   __list-files)    _ev_list_files ;;
   __on-change)     _ev_on_change ;;
