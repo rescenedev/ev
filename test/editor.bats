@@ -33,3 +33,21 @@ setup() {
   run ev_editor_cmd weirdedit /tmp/a.txt 5
   [ "$output" = "weirdedit /tmp/a.txt" ]
 }
+
+@test "ev_is_text detects a text file" {
+  local f="$BATS_TEST_TMPDIR/t.txt"; printf 'hello\nworld\n' > "$f"
+  run ev_is_text "$f"
+  [ "$status" -eq 0 ]
+}
+
+@test "ev_is_text detects a binary file (NUL bytes)" {
+  local f="$BATS_TEST_TMPDIR/b.bin"; printf 'PK\003\004\000\000bin' > "$f"
+  run ev_is_text "$f"
+  [ "$status" -ne 0 ]
+}
+
+@test "ev_is_text treats an empty file as text" {
+  local f="$BATS_TEST_TMPDIR/empty.txt"; : > "$f"
+  run ev_is_text "$f"
+  [ "$status" -eq 0 ]
+}

@@ -18,6 +18,35 @@ teardown() { rm -rf "$STATE" "$ROOT"; }
   [ "$(cat "$STATE/hidden")" = "0" ]
 }
 
+@test "init defaults search scope to both" {
+  "$EV" __init
+  [ "$(cat "$STATE/scope")" = "both" ]
+}
+
+@test "cycle-scope goes both -> files -> content -> both" {
+  "$EV" __init
+  run "$EV" __cycle-scope
+  [ "$(cat "$STATE/scope")" = "files" ];   [[ "$output" == *"name>"* ]]
+  run "$EV" __cycle-scope
+  [ "$(cat "$STATE/scope")" = "content" ]; [[ "$output" == *"text>"* ]]
+  run "$EV" __cycle-scope
+  [ "$(cat "$STATE/scope")" = "both" ];    [[ "$output" == *"search>"* ]]
+}
+
+@test "files scope returns only filename matches" {
+  "$EV" __init; printf 'files\n' > "$STATE/scope"
+  FZF_QUERY="ripgrep" run "$EV" __search
+  [[ "$output" == *"ripgrep-config.txt"* ]]   # 파일명 매치
+  [[ "$output" != *"readme.txt"* ]]           # 내용 매치 제외
+}
+
+@test "content scope returns only content matches" {
+  "$EV" __init; printf 'content\n' > "$STATE/scope"
+  FZF_QUERY="ripgrep" run "$EV" __search
+  [[ "$output" == *"readme.txt"* ]]           # 내용 매치
+  [[ "$output" != *"ripgrep-config.txt"* ]]   # 파일명 전용 제외
+}
+
 @test "empty query lists files" {
   "$EV" __init
   FZF_QUERY="" run "$EV" __search
@@ -61,4 +90,10 @@ teardown() { rm -rf "$STATE" "$ROOT"; }
   unset EDITOR
   EV_DRY_RUN=1 run "$EV" __open "$ROOT/note.txt" 2
   [ "$output" = "vi +2 $ROOT/note.txt" ]
+}
+
+@test "open uses macOS 'open' for non-text (binary) files like hwp" {
+  printf 'PK\003\004\000\000hwpbin' > "$ROOT/doc.hwp"
+  EDITOR=vim EV_DRY_RUN=1 run "$EV" __open "$ROOT/doc.hwp" ""
+  [ "$output" = "open $ROOT/doc.hwp" ]
 }

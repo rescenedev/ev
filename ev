@@ -11,10 +11,12 @@ source "$EV_HOME/lib/search.sh"
 
 # ── 상태 헬퍼 ────────────────────────────────────────────────
 _ev_hidden() { cat "$EV_STATE/hidden"; }
+_ev_scope()  { cat "$EV_STATE/scope"; }   # both | files | content
 
 # ── 서브커맨드 ───────────────────────────────────────────────
 _ev_init() {
-  printf '0\n' > "$EV_STATE/hidden"
+  printf '0\n'    > "$EV_STATE/hidden"
+  printf 'both\n' > "$EV_STATE/scope"
 }
 
 _ev_run_argv() {            # stdin: 토큰(줄당 1개) → 실행
@@ -25,17 +27,33 @@ _ev_run_argv() {            # stdin: 토큰(줄당 1개) → 실행
   "${cmd[@]}"
 }
 
-# 통합 검색: 빈 쿼리면 파일 목록, 아니면 파일명(fd) + 내용(rg) 합쳐서 출력.
+# 검색: scope에 따라 파일명(fd) / 내용(rg) / 둘 다. 빈 쿼리면 파일 목록.
 _ev_search() {
   local q="${FZF_QUERY:-}"
-  local hidden
+  local hidden scope
   hidden="$(_ev_hidden)"
+  scope="$(_ev_scope)"
   if [ -z "$q" ]; then
+    [ "$scope" = content ] && return 0          # 내용 전용은 쿼리가 있어야 의미
     ev_fd_cmd "$EV_ROOT" "$hidden" | _ev_run_argv || true
     return 0
   fi
-  ev_fd_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true   # 파일명 매치
-  ev_rg_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true   # 내용 매치
+  case "$scope" in
+    files)   ev_fd_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true ;;
+    content) ev_rg_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true ;;
+    *)       ev_fd_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true     # 파일명
+             ev_rg_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true ;;  # 내용
+  esac
+}
+
+# 검색 범위 순환: both → files → content → both. 프롬프트 라벨도 바꾼다.
+_ev_cycle_scope() {
+  local self="$EV_HOME/ev"
+  case "$(_ev_scope)" in
+    both)    printf 'files\n'   > "$EV_STATE/scope"; printf 'change-prompt(name> )+reload(%s __search)'   "$self" ;;
+    files)   printf 'content\n' > "$EV_STATE/scope"; printf 'change-prompt(text> )+reload(%s __search)'   "$self" ;;
+    *)       printf 'both\n'    > "$EV_STATE/scope"; printf 'change-prompt(search> )+reload(%s __search)' "$self" ;;
+  esac
 }
 
 _ev_toggle_hidden() {
@@ -53,14 +71,16 @@ _ev_preview() {             # 인자: file [line]
 _ev_open() {                # 인자: file [line]
   local file="$1" line="${2:-}"
   [ -z "$file" ] && return 0
-  local editor="${EDITOR:-vi}"
-  local cmd
-  cmd="$(ev_editor_cmd "$editor" "$file" "$line")"
-  if [ "${EV_DRY_RUN:-0}" = 1 ]; then
-    printf '%s\n' "$cmd"
-    return 0
+  # 텍스트면 $EDITOR로 해당 줄에서, 아니면(hwp/pdf/이미지 등) macOS 기본 앱으로 연다.
+  if ev_is_text "$file"; then
+    local cmd
+    cmd="$(ev_editor_cmd "${EDITOR:-vi}" "$file" "$line")"
+    if [ "${EV_DRY_RUN:-0}" = 1 ]; then printf '%s\n' "$cmd"; return 0; fi
+    eval "$cmd"
+  else
+    if [ "${EV_DRY_RUN:-0}" = 1 ]; then printf 'open %s\n' "$file"; return 0; fi
+    open "$file"
   fi
-  eval "$cmd"
 }
 
 # ── 의존성 자동 설치 ─────────────────────────────────────────
@@ -110,18 +130,20 @@ _ev_main() {
     --preview-window 'right,55%,border-left,+{2}/3' \
     --bind "start:reload($self __search)" \
     --bind "change:reload($self __search)" \
+    --bind "ctrl-f:transform($self __cycle-scope)" \
     --bind "ctrl-h:transform($self __toggle-hidden)" \
     --bind "enter:become($self __open {1} {2})" \
     --bind "ctrl-y:execute-silent(printf %s {1} | pbcopy)" \
     --bind '?:toggle-preview' \
     --bind 'esc:abort' \
-    --header '파일명+내용 동시 검색  Ctrl-H: 숨김  Enter: 열기  Ctrl-Y: 복사  ?: 미리보기'
+    --header 'Ctrl-F: 범위(전체→이름→내용)  Ctrl-H: 숨김  Enter: 열기  Ctrl-Y: 복사  ?: 미리보기'
 }
 
 # ── 디스패치 ─────────────────────────────────────────────────
 case "${1:-}" in
   __init)          shift; _ev_init "$@" ;;
   __search)        _ev_search ;;
+  __cycle-scope)   _ev_cycle_scope ;;
   __toggle-hidden) _ev_toggle_hidden ;;
   __preview)       shift; _ev_preview "$@" ;;
   __open)          shift; _ev_open "$@" ;;
