@@ -93,25 +93,28 @@ ev -g 유동성 ~/docs --format md > report.md
 ev -x 보고서.hwpx | less
 ```
 
-## 문서 내용 검색 (HWPX · DOCX)
+## 문서 내용 검색 (HWPX · DOCX · PPTX · XLSX · PDF)
 
-`.hwpx`와 `.docx`는 사실 zip 안의 XML이다. `ev`는 `ripgrep`의 `--pre` 전처리기
-(`libexec/ev-extract`)로 이들만 평문으로 변환해 검색·미리보기한다.
+`.hwpx`/`.docx`/`.pptx`/`.xlsx`는 사실 zip 안의 XML이고, `.pdf`는 `pdftotext`로 푼다.
+`ev`는 `ripgrep`의 `--pre` 전처리기(`libexec/ev-extract`)로 이들만 평문으로 변환해 검색·미리보기한다.
 
 ```
 검색어 입력
    │
-   ├─ 일반 파일 ───────────────────→ rg 가 직접 검색
-   └─ *.hwpx / *.docx ──→ ev-extract ──→ unzip + 태그 제거 → rg 가 추출 텍스트 검색
-                                                                │
-                                                  결과는 원본 파일 경로로 표시
+   ├─ 일반 파일 ─────────────────────────────→ rg 가 직접 검색
+   └─ *.hwpx/docx/pptx/xlsx/pdf ──→ ev-extract ──→ 평문 변환 → rg 가 추출 텍스트 검색
+                                                                  │
+                                                    결과는 원본 파일 경로로 표시
 ```
+
+추출 방식: hwpx=`Contents/section*.xml` · docx=`word/document.xml` ·
+pptx=`ppt/slides/slide*.xml` · xlsx=`xl/sharedStrings.xml`+시트 · pdf=`pdftotext`.
 
 - **별도 인덱스·캐시 없음** — rg가 검색 시점에 추출, 원본 경로 그대로 결과 표시.
 - **미리보기**에 추출 텍스트를 렌더하고 매칭 줄을 강조한다.
-- 한글/한컴오피스, MS Word가 **없어도** 내용을 검색하고 미리보기로 읽을 수 있다.
-- `Enter` — hwpx는 추출 텍스트를 pager로, docx는 macOS 기본 앱(Pages 등)으로 연다.
-- 구버전 바이너리 `.hwp`는 미지원(별도 파서 필요). 요즘 문서는 대부분 hwpx/docx.
+- 한글/한컴오피스, MS Office가 **없어도** 내용을 검색하고 미리보기로 읽을 수 있다.
+- `Enter` — hwpx는 추출 텍스트를 pager로, 나머지는 macOS 기본 앱으로 연다.
+- pdf 본문은 `pdftotext`(poppler) 필요. 구버전 바이너리 `.hwp`는 미지원.
 
 ## 동작 원리
 

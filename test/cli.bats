@@ -32,6 +32,16 @@ _make_docx() {
   rm -rf "$d"
 }
 
+# 최소 pptx(zip) 샘플 생성
+_make_pptx() {
+  local out="$1" body="$2"
+  local d="$BATS_TEST_TMPDIR/pptx.$$"
+  mkdir -p "$d/ppt/slides"
+  printf '<p:sld><a:t>%s</a:t></p:sld>' "$body" > "$d/ppt/slides/slide1.xml"
+  ( cd "$d" && zip -qr "$out" . )
+  rm -rf "$d"
+}
+
 @test "init creates hidden state defaulting to off" {
   run "$EV" __init
   [ "$status" -eq 0 ]
@@ -149,6 +159,13 @@ _make_docx() {
   _make_hwpx "$ROOT/p.hwpx" "미리보기확인텍스트"
   run "$EV" __preview "$ROOT/p.hwpx" ""
   [[ "$output" == *"미리보기확인텍스트"* ]]
+}
+
+@test "content search finds text inside a pptx via the extractor" {
+  _make_pptx "$ROOT/deck.pptx" "분기실적 발표자료"
+  "$EV" __init; printf 'content\n' > "$STATE/scope"
+  FZF_QUERY="분기실적" run "$EV" __search
+  [[ "$output" == *"deck.pptx"* ]]
 }
 
 @test "preview renders docx as extracted text" {

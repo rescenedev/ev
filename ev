@@ -90,7 +90,7 @@ _ev_preview_extracted() {   # 인자: file [line]
 _ev_preview() {             # 인자: file [line]
   local file="$1" line="${2:-}"
   case "$file" in
-    *.hwpx|*.HWPX|*.docx|*.DOCX)
+    *.hwpx|*.HWPX|*.docx|*.DOCX|*.pptx|*.PPTX|*.xlsx|*.XLSX)
       _ev_preview_extracted "$file" "$line" ;;
     *.pdf|*.PDF)
       if command -v pdftotext >/dev/null 2>&1; then

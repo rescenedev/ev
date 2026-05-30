@@ -72,6 +72,38 @@ _make_pdf() {
   [[ "$output" == *"PDFSEARCHABLE"* ]]
 }
 
+_make_pptx() {
+  local out="$1" body="$2"
+  local d="$BATS_TEST_TMPDIR/pptx.$$"
+  mkdir -p "$d/ppt/slides"
+  printf '<p:sld><p:txBody><a:p><a:r><a:t>%s</a:t></a:r></a:p></p:txBody></p:sld>' "$body" > "$d/ppt/slides/slide1.xml"
+  ( cd "$d" && zip -qr "$out" . )
+  rm -rf "$d"
+}
+
+_make_xlsx() {
+  local out="$1" body="$2"
+  local d="$BATS_TEST_TMPDIR/xlsx.$$"
+  mkdir -p "$d/xl"
+  printf '<sst><si><t>%s</t></si></sst>' "$body" > "$d/xl/sharedStrings.xml"
+  ( cd "$d" && zip -qr "$out" . )
+  rm -rf "$d"
+}
+
+@test "ev_extract_text pulls text from a pptx" {
+  local f="$BATS_TEST_TMPDIR/deck.pptx"
+  _make_pptx "$f" "슬라이드 본문 검색"
+  run ev_extract_text "$f"
+  [[ "$output" == *"슬라이드 본문 검색"* ]]
+}
+
+@test "ev_extract_text pulls text from an xlsx (shared strings)" {
+  local f="$BATS_TEST_TMPDIR/sheet.xlsx"
+  _make_xlsx "$f" "셀값검색대상"
+  run ev_extract_text "$f"
+  [[ "$output" == *"셀값검색대상"* ]]
+}
+
 @test "ev_extract_text passes through non-hwpx files unchanged" {
   local f="$BATS_TEST_TMPDIR/plain.txt"
   printf 'just plain text\n' > "$f"

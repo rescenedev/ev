@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ev // 터미널 즉시 파일 검색</title>
-<meta name="description" content="ev — 터미널에서 타이핑하는 즉시 파일명과 내용을 동시에 찾는 macOS용 Everything. hwpx·docx·pdf 문서 속까지. rg + fzf + fd.">
+<meta name="description" content="ev — 터미널에서 타이핑하는 즉시 파일명과 내용을 동시에 찾는 macOS용 Everything. hwpx·docx·pptx·xlsx·pdf 문서 속까지. rg + fzf + fd.">
 <meta property="og:title" content="ev // 터미널 즉시 파일 검색">
-<meta property="og:description" content="타이핑하는 순간 파일명과 내용을 동시에 뒤진다. .hwpx · .docx · .pdf 한글 문서 속까지.">
+<meta property="og:description" content="타이핑하는 순간 파일명과 내용을 동시에 뒤진다. .hwpx · .docx · .pptx · .xlsx · .pdf 한글 문서 속까지.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=5">
+<link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 <!-- CRT scanline + vignette overlay -->
@@ -47,7 +47,7 @@
   </p>
 
   <h1 class="hero__tagline">터미널에서 <span class="amber">즉시</span> 뜨는 파일 검색</h1>
-  <p class="hero__sub">// 타이핑하는 순간 파일명과 파일 <span class="glow">내용</span>을 동시에 뒤진다 — <span class="amber">.hwpx · .docx · .pdf</span> 한글 문서 속까지.</p>
+  <p class="hero__sub">// 타이핑하는 순간 파일명과 파일 <span class="glow">내용</span>을 동시에 뒤진다 — <span class="amber">.hwpx · .docx · .pptx · .xlsx · .pdf</span> 한글 문서 속까지.</p>
 
   <div class="hero__cta">
     <a class="btn btn--solid" href="#install">[ INSTALL ]</a>
@@ -96,7 +96,7 @@
     </article>
     <article class="pane">
       <div class="pane__head">[OK] 한글 문서 관통</div>
-      <p><span class="amber">.hwpx · .docx · .pdf</span> 본문을 추출 — 한글/Word 앱 없이도 내용 검색·미리보기.</p>
+      <p><span class="amber">.hwpx · .docx · .pptx · .xlsx · .pdf</span> 본문을 추출 — 한글/Word 앱 없이도 내용 검색·미리보기.</p>
     </article>
     <article class="pane">
       <div class="pane__head">[OK] 가볍다</div>
@@ -196,7 +196,7 @@
 
 <!-- ===================== DOC SEARCH ===================== -->
 <section class="section" aria-labelledby="doc-h">
-  <h2 id="doc-h" class="section__title" data-glitch="// HWPX + DOCX + PDF">// HWPX + DOCX + PDF</h2>
+  <h2 id="doc-h" class="section__title" data-glitch="// HWPX · DOCX · PPTX · XLSX · PDF">// HWPX · DOCX · PPTX · XLSX · PDF</h2>
   <div class="grid grid--2">
     <div class="window">
       <div class="window__bar">
@@ -208,7 +208,7 @@
   │
   ├─ 일반 파일 ───────────→ rg 직접 검색
   │
-  └─ *.hwpx / *.docx / *.pdf
+  └─ *.hwpx/docx/pptx/xlsx/pdf
         │
         ▼
      <span class="amber">ev-extract</span>  (unzip + 태그 제거)
@@ -230,6 +230,8 @@
         <div class="stat"><span class="stat__label">텍스트 내용</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
         <div class="stat"><span class="stat__label">hwpx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
         <div class="stat"><span class="stat__label">docx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
+        <div class="stat"><span class="stat__label">pptx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
+        <div class="stat"><span class="stat__label">xlsx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
         <div class="stat"><span class="stat__label">pdf 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
         <div class="stat"><span class="stat__label">인덱스/캐시</span><span class="stat__bar" data-fill="0"></span><span class="stat__val">0 — 불필요</span></div>
         <p class="stats__note">한글·한컴오피스, MS Word가 <span class="amber">없어도</span> 내용을 검색하고 읽는다.</p>
@@ -251,6 +253,6 @@
   <p class="footer__eof">you@mac:~$ <span class="cursor" aria-hidden="true">█</span></p>
 </footer>
 
-<script src="main.js?v=5"></script>
+<script src="main.js?v=6"></script>
 </body>
 </html>

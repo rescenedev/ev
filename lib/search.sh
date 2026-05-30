@@ -6,7 +6,8 @@ ev_rg_cmd() {
   local root="$1" hidden="$2" query="$3" extractor="${4:-}"
   printf '%s\n' rg --column --line-number --no-heading --color=always --smart-case
   if [ -n "$extractor" ]; then
-    printf '%s\n' --pre "$extractor" --pre-glob '*.hwpx' --pre-glob '*.docx' --pre-glob '*.pdf'
+    printf '%s\n' --pre "$extractor" \
+      --pre-glob '*.hwpx' --pre-glob '*.docx' --pre-glob '*.pptx' --pre-glob '*.xlsx' --pre-glob '*.pdf'
   fi
   _ev_emit_rg_globs                       # *.확장자 필터 (EV_EXTS)
   if [ "$hidden" = 1 ]; then

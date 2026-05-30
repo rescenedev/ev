@@ -25,6 +25,8 @@ ev_extract_text() {
   case "$file" in
     *.hwpx|*.HWPX) _ev_extract_zip_xml "$file" 'Contents/section[0-9]+\.xml' ;;
     *.docx|*.DOCX) _ev_extract_zip_xml "$file" 'word/document\.xml' ;;
+    *.pptx|*.PPTX) _ev_extract_zip_xml "$file" 'ppt/slides/slide[0-9]+\.xml' ;;
+    *.xlsx|*.XLSX) _ev_extract_zip_xml "$file" 'xl/(sharedStrings|worksheets/sheet[0-9]+)\.xml' ;;
     *.pdf|*.PDF)   _ev_extract_pdf "$file" ;;
     *)             cat -- "$file" 2>/dev/null; return 0 ;;
   esac

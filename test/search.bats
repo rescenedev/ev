@@ -35,6 +35,8 @@ teardown() { rm -rf "$TMP"; }
   [[ "$output" == *"--pre-glob"* ]]
   [[ "$output" == *"*.hwpx"* ]]
   [[ "$output" == *"*.docx"* ]]
+  [[ "$output" == *"*.pptx"* ]]
+  [[ "$output" == *"*.xlsx"* ]]
   [[ "$output" == *"*.pdf"* ]]
 }
 
