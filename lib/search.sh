@@ -1,0 +1,21 @@
+# rg / fd 실행 argv 조립. source 전용. 토큰을 한 줄에 하나씩 출력(공백 안전).
+
+# 사용법: ev_rg_cmd <root> <hidden:0|1> <query>
+ev_rg_cmd() {
+  local root="$1" hidden="$2" query="$3"
+  printf '%s\n' rg --column --line-number --no-heading --color=always --smart-case
+  if [ "$hidden" = 1 ]; then
+    printf '%s\n' --hidden --no-ignore
+  fi
+  printf '%s\n' -- "$query" "$root"
+}
+
+# 사용법: ev_fd_cmd <root> <hidden:0|1>
+ev_fd_cmd() {
+  local root="$1" hidden="$2"
+  printf '%s\n' fd --type f --color=always
+  if [ "$hidden" = 1 ]; then
+    printf '%s\n' --hidden --no-ignore
+  fi
+  printf '%s\n' . "$root"
+}
