@@ -40,7 +40,11 @@ cd ev
 PATH에 올리기:
 
 ```bash
-ln -s "$PWD/ev" /usr/local/bin/ev
+# 시스템 경로(/usr/local/bin)는 쓰기 권한이 필요 → sudo
+sudo ln -s "$PWD/ev" /usr/local/bin/ev
+
+# 또는 sudo 없이 사용자 경로에 (PATH에 ~/.local/bin 이 있어야 함)
+mkdir -p ~/.local/bin && ln -s "$PWD/ev" ~/.local/bin/ev
 ```
 
 ## 사용법
