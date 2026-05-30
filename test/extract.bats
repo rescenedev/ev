@@ -14,6 +14,16 @@ _make_hwpx() {
   rm -rf "$d"
 }
 
+# 최소 docx(zip) 샘플 생성: word/document.xml 에 본문 텍스트
+_make_docx() {
+  local out="$1" body="$2"
+  local d="$BATS_TEST_TMPDIR/docx.$$"
+  mkdir -p "$d/word"
+  printf '<w:document><w:body><w:p><w:r><w:t>%s</w:t></w:r></w:p></w:body></w:document>' "$body" > "$d/word/document.xml"
+  ( cd "$d" && zip -qr "$out" . )
+  rm -rf "$d"
+}
+
 @test "ev_extract_text pulls body text from an hwpx" {
   local f="$BATS_TEST_TMPDIR/sample.hwpx"
   _make_hwpx "$f" "안녕하세요 검색테스트"
@@ -29,6 +39,13 @@ _make_hwpx() {
   [[ "$output" == *"금융위원회"* ]]
   [[ "$output" != *"Clickhere:set:45"* ]]
   [[ "$output" != *"HelpState:wstring"* ]]
+}
+
+@test "ev_extract_text pulls body text from a docx" {
+  local f="$BATS_TEST_TMPDIR/sample.docx"
+  _make_docx "$f" "이력서 본문 추출테스트"
+  run ev_extract_text "$f"
+  [[ "$output" == *"이력서 본문 추출테스트"* ]]
 }
 
 @test "ev_extract_text passes through non-hwpx files unchanged" {

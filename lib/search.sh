@@ -6,7 +6,7 @@ ev_rg_cmd() {
   local root="$1" hidden="$2" query="$3" extractor="${4:-}"
   printf '%s\n' rg --column --line-number --no-heading --color=always --smart-case
   if [ -n "$extractor" ]; then
-    printf '%s\n' --pre "$extractor" --pre-glob '*.hwpx'
+    printf '%s\n' --pre "$extractor" --pre-glob '*.hwpx' --pre-glob '*.docx'
   fi
   if [ "$hidden" = 1 ]; then
     printf '%s\n' --hidden --no-ignore

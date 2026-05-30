@@ -68,7 +68,7 @@ _ev_toggle_hidden() {
 _ev_preview() {             # 인자: file [line]
   local file="$1" line="${2:-}"
   case "$file" in
-    *.hwpx|*.HWPX)          # 추출 텍스트를 보여주되, 매칭 줄을 강조
+    *.hwpx|*.HWPX|*.docx|*.DOCX)   # 추출 텍스트를 보여주되, 매칭 줄을 강조
       if command -v bat >/dev/null 2>&1; then
         if [ -n "$line" ]; then
           ev_extract_text "$file" | bat --style=numbers --color=always --language=md --highlight-line "$line" 2>/dev/null

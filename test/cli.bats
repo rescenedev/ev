@@ -22,6 +22,16 @@ _make_hwpx() {
   rm -rf "$d"
 }
 
+# 최소 docx(zip) 샘플 생성
+_make_docx() {
+  local out="$1" body="$2"
+  local d="$BATS_TEST_TMPDIR/docx.$$"
+  mkdir -p "$d/word"
+  printf '<w:document><w:body><w:p><w:r><w:t>%s</w:t></w:r></w:p></w:body></w:document>' "$body" > "$d/word/document.xml"
+  ( cd "$d" && zip -qr "$out" . )
+  rm -rf "$d"
+}
+
 @test "init creates hidden state defaulting to off" {
   run "$EV" __init
   [ "$status" -eq 0 ]
@@ -125,4 +135,17 @@ _make_hwpx() {
   _make_hwpx "$ROOT/p.hwpx" "미리보기확인텍스트"
   run "$EV" __preview "$ROOT/p.hwpx" ""
   [[ "$output" == *"미리보기확인텍스트"* ]]
+}
+
+@test "preview renders docx as extracted text" {
+  _make_docx "$ROOT/resume.docx" "박성일 국문이력서 본문"
+  run "$EV" __preview "$ROOT/resume.docx" ""
+  [[ "$output" == *"박성일 국문이력서 본문"* ]]
+}
+
+@test "content search finds text inside a docx via the extractor" {
+  _make_docx "$ROOT/resume.docx" "경력 프로젝트 리더십"
+  "$EV" __init; printf 'content\n' > "$STATE/scope"
+  FZF_QUERY="프로젝트" run "$EV" __search
+  [[ "$output" == *"resume.docx"* ]]
 }
