@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 # ev — Everything 스타일 TUI 검색 (rg + fzf + fd)
+# 파일명(fd)과 내용(rg)을 한 번에 검색해 결과를 합쳐 보여준다.
 set -euo pipefail
 
 EV_HOME="${0:A:h}"
@@ -9,23 +10,11 @@ source "$EV_HOME/lib/preview.sh"
 source "$EV_HOME/lib/search.sh"
 
 # ── 상태 헬퍼 ────────────────────────────────────────────────
-_ev_mode()   { cat "$EV_STATE/mode"; }
 _ev_hidden() { cat "$EV_STATE/hidden"; }
 
-# 현재 모드에 맞는 reload 액션 문자열 생성
-_ev_reload_action() {
-  if [ "$(_ev_mode)" = files ]; then
-    printf 'reload(%s __list-files)' "$EV_HOME/ev"
-  else
-    printf 'reload(%s __search)' "$EV_HOME/ev"
-  fi
-}
-
 # ── 서브커맨드 ───────────────────────────────────────────────
-_ev_init() {                # 인자: [mode]  기본 files (실행 즉시 파일 목록부터 보여줌)
-  local mode="${1:-files}"
-  printf '%s\n' "$mode" > "$EV_STATE/mode"
-  printf '0\n'          > "$EV_STATE/hidden"
+_ev_init() {
+  printf '0\n' > "$EV_STATE/hidden"
 }
 
 _ev_run_argv() {            # stdin: 토큰(줄당 1개) → 실행
@@ -36,35 +25,23 @@ _ev_run_argv() {            # stdin: 토큰(줄당 1개) → 실행
   "${cmd[@]}"
 }
 
-_ev_search() {              # 내용 모드 검색 (FZF_QUERY 사용)
+# 통합 검색: 빈 쿼리면 파일 목록, 아니면 파일명(fd) + 내용(rg) 합쳐서 출력.
+_ev_search() {
   local q="${FZF_QUERY:-}"
-  [ -z "$q" ] && return 0
-  ev_rg_cmd "$EV_ROOT" "$(_ev_hidden)" "$q" | _ev_run_argv || true
-}
-
-_ev_list_files() {          # 파일명 모드 전체 목록 (fzf가 fuzzy 필터)
-  ev_fd_cmd "$EV_ROOT" "$(_ev_hidden)" | _ev_run_argv || true
-}
-
-_ev_on_change() {           # change 이벤트: 내용 모드만 reload
-  [ "$(_ev_mode)" = content ] || return 0
-  printf 'reload(%s __search)' "$EV_HOME/ev"
-}
-
-_ev_toggle_mode() {
-  if [ "$(_ev_mode)" = content ]; then
-    printf 'files\n' > "$EV_STATE/mode"
-    printf 'enable-search+change-prompt(files> )+%s' "$(_ev_reload_action)"
-  else
-    printf 'content\n' > "$EV_STATE/mode"
-    printf 'disable-search+change-prompt(rg> )+%s' "$(_ev_reload_action)"
+  local hidden
+  hidden="$(_ev_hidden)"
+  if [ -z "$q" ]; then
+    ev_fd_cmd "$EV_ROOT" "$hidden" | _ev_run_argv || true
+    return 0
   fi
+  ev_fd_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true   # 파일명 매치
+  ev_rg_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true   # 내용 매치
 }
 
 _ev_toggle_hidden() {
   if [ "$(_ev_hidden)" = 0 ]; then printf '1\n' > "$EV_STATE/hidden"
   else printf '0\n' > "$EV_STATE/hidden"; fi
-  printf '%s' "$(_ev_reload_action)"
+  printf 'reload(%s __search)' "$EV_HOME/ev"
 }
 
 _ev_preview() {             # 인자: file [line]
@@ -123,33 +100,28 @@ _ev_main() {
   trap 'rm -rf "$EV_STATE"' EXIT
   _ev_init
 
-  # 실행 즉시 디렉터리 전체 파일 목록(파일명 모드)부터 보여준다.
-  # 파일명 모드는 fzf 자체 fuzzy 필터를 쓰므로 --disabled를 켜지 않는다.
-  # Ctrl-F로 내용 검색(rg) 모드로 전환하면 toggle이 search를 disable한다.
+  # 빈 화면은 파일 목록, 타이핑하면 fd(파일명)+rg(내용)를 합쳐 reload.
+  # fzf 자체 필터는 끄고(--disabled) 검색은 fd/rg가 담당한다.
   local self="$EV_HOME/ev"
   : | fzf \
-    --ansi --prompt 'files> ' \
+    --ansi --disabled --prompt 'search> ' \
     --delimiter : \
     --preview "$self __preview {1} {2}" \
     --preview-window 'right,55%,border-left,+{2}/3' \
-    --bind "start:reload($self __list-files)" \
-    --bind "change:transform($self __on-change)" \
-    --bind "ctrl-f:transform($self __toggle-mode)" \
+    --bind "start:reload($self __search)" \
+    --bind "change:reload($self __search)" \
     --bind "ctrl-h:transform($self __toggle-hidden)" \
     --bind "enter:become($self __open {1} {2})" \
     --bind "ctrl-y:execute-silent(printf %s {1} | pbcopy)" \
     --bind '?:toggle-preview' \
     --bind 'esc:abort' \
-    --header 'Ctrl-F: 파일명↔내용  Ctrl-H: 숨김  Enter: 열기  Ctrl-Y: 복사  ?: 미리보기'
+    --header '파일명+내용 동시 검색  Ctrl-H: 숨김  Enter: 열기  Ctrl-Y: 복사  ?: 미리보기'
 }
 
 # ── 디스패치 ─────────────────────────────────────────────────
 case "${1:-}" in
   __init)          shift; _ev_init "$@" ;;
   __search)        _ev_search ;;
-  __list-files)    _ev_list_files ;;
-  __on-change)     _ev_on_change ;;
-  __toggle-mode)   _ev_toggle_mode ;;
   __toggle-hidden) _ev_toggle_hidden ;;
   __preview)       shift; _ev_preview "$@" ;;
   __open)          shift; _ev_open "$@" ;;

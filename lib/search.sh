@@ -10,12 +10,13 @@ ev_rg_cmd() {
   printf '%s\n' -- "$query" "$root"
 }
 
-# 사용법: ev_fd_cmd <root> <hidden:0|1>
+# 사용법: ev_fd_cmd <root> <hidden:0|1> [pattern]
+# pattern 생략 시 '.' (모든 파일). 주어지면 파일명 패턴으로 사용.
 ev_fd_cmd() {
-  local root="$1" hidden="$2"
+  local root="$1" hidden="$2" pattern="${3:-.}"
   printf '%s\n' fd --type f --color=always
   if [ "$hidden" = 1 ]; then
     printf '%s\n' --hidden --no-ignore
   fi
-  printf '%s\n' . "$root"
+  printf '%s\n' "$pattern" "$root"
 }

@@ -34,6 +34,12 @@ teardown() { rm -rf "$TMP"; }
   [ "${lines[${#lines[@]}-1]}" = "/r" ]
 }
 
+@test "ev_fd_cmd uses query as filename pattern when given" {
+  run ev_fd_cmd /r 0 "needle"
+  [ "${lines[${#lines[@]}-2]}" = "needle" ]
+  [ "${lines[${#lines[@]}-1]}" = "/r" ]
+}
+
 @test "rg command actually finds matches in temp dir (integration)" {
   local cmd=()
   while IFS= read -r tok; do cmd+=("$tok"); done < <(ev_rg_cmd "$TMP" 0 "hello")
