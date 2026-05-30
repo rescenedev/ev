@@ -54,7 +54,7 @@
   const results = [
     { f: HWPX,            ln: "20", txt: "증권사의 유동성 리스크 관리 역량 및 위기 대응력 제고…" },
     { f: HWPX,            ln: "21", txt: "유동성 규제체계를 개선하는 한편, 외국인 투자자의…" },
-    { f: "이력서_박성일.docx", ln: "14", txt: "유동성 관리 자동화 파이프라인 구축 — 사내 도구…" },
+    { f: "회의록_2026Q2.docx", ln: "14", txt: "유동성 점검 안건 — 분기 자금운용 리뷰 결과…" },
     { f: "README.md",     ln: "8",  txt: "타이핑하는 순간 파일명과 내용을 동시에 뒤진다…" },
     { f: "lib/search.sh", ln: "12", txt: "ev_rg_cmd \"$EV_ROOT\" \"$hidden\" \"$q\" \"$EV_EXTRACTOR\"" },
   ];

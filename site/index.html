@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ev // 터미널 즉시 파일 검색</title>
-<meta name="description" content="ev — 터미널에서 타이핑하는 즉시 파일명과 내용을 동시에 찾는 macOS용 Everything. hwpx·docx 한글 문서 속까지. rg + fzf + fd.">
+<meta name="description" content="ev — 터미널에서 타이핑하는 즉시 파일명과 내용을 동시에 찾는 macOS용 Everything. hwpx·docx·pdf 문서 속까지. rg + fzf + fd.">
 <meta property="og:title" content="ev // 터미널 즉시 파일 검색">
-<meta property="og:description" content="타이핑하는 순간 파일명과 내용을 동시에 뒤진다. .hwpx · .docx 한글 문서 속까지.">
+<meta property="og:description" content="타이핑하는 순간 파일명과 내용을 동시에 뒤진다. .hwpx · .docx · .pdf 한글 문서 속까지.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
 
 <!-- ===================== TOP BAR ===================== -->
 <header class="topbar">
-  <span class="topbar__id">seongilp@mac</span>
+  <span class="topbar__id">you@mac</span>
   <span class="topbar__sep">:</span>
   <span class="topbar__path">~/work/cli/ev</span>
   <nav class="topbar__nav">
@@ -42,12 +42,12 @@
 ╚══════╝  ╚═══╝</pre>
 
   <p class="hero__prompt">
-    <span class="prompt__user">seongilp@mac</span><span class="prompt__sep">:</span><span class="prompt__path">~</span><span class="prompt__dollar">$</span>
+    <span class="prompt__user">you@mac</span><span class="prompt__sep">:</span><span class="prompt__path">~</span><span class="prompt__dollar">$</span>
     <span id="typed" class="hero__typed"></span><span class="cursor" aria-hidden="true">█</span>
   </p>
 
   <h1 class="hero__tagline">터미널에서 <span class="amber">즉시</span> 뜨는 파일 검색</h1>
-  <p class="hero__sub">// 타이핑하는 순간 파일명과 파일 <span class="glow">내용</span>을 동시에 뒤진다 — <span class="amber">.hwpx · .docx</span> 한글 문서 속까지.</p>
+  <p class="hero__sub">// 타이핑하는 순간 파일명과 파일 <span class="glow">내용</span>을 동시에 뒤진다 — <span class="amber">.hwpx · .docx · .pdf</span> 한글 문서 속까지.</p>
 
   <div class="hero__cta">
     <a class="btn btn--solid" href="#install">[ INSTALL ]</a>
@@ -96,7 +96,7 @@
     </article>
     <article class="pane">
       <div class="pane__head">[OK] 한글 문서 관통</div>
-      <p><span class="amber">.hwpx · .docx</span> 본문을 추출 — 한글/Word 앱 없이도 내용 검색·미리보기.</p>
+      <p><span class="amber">.hwpx · .docx · .pdf</span> 본문을 추출 — 한글/Word 앱 없이도 내용 검색·미리보기.</p>
     </article>
     <article class="pane">
       <div class="pane__head">[OK] 가볍다</div>
@@ -115,13 +115,11 @@
       <button class="copy" data-copy="install-code">[ COPY ]</button>
     </div>
     <div class="window__body">
-<pre id="install-code" class="code"><span class="c-comment"># clone & run — rg/fzf/fd 없으면 자동 설치</span>
-<span class="c-cmd">git clone</span> https://github.com/seongilp/ev
-<span class="c-cmd">cd</span> ev && ./ev
+<pre id="install-code" class="code"><span class="c-comment"># 한 줄 설치 — rg/fzf/fd 는 첫 실행 시 자동 설치</span>
+<span class="c-cmd">curl -fsSL</span> https://seongilp.github.io/ev/install.sh | bash
 
-<span class="c-comment"># PATH에 올리기 (둘 중 하나)</span>
-<span class="c-cmd">sudo ln -s</span> "$PWD/ev" /usr/local/bin/ev
-<span class="c-cmd">ln -s</span> "$PWD/ev" ~/.local/bin/ev</pre>
+<span class="c-comment"># 또는 직접 clone</span>
+<span class="c-cmd">git clone</span> https://github.com/seongilp/ev && <span class="c-cmd">cd</span> ev && ./ev</pre>
     </div>
   </div>
 </section>
@@ -166,7 +164,7 @@
   │
   ├─ 일반 파일 ───────────→ rg 직접 검색
   │
-  └─ *.hwpx / *.docx
+  └─ *.hwpx / *.docx / *.pdf
         │
         ▼
      <span class="amber">ev-extract</span>  (unzip + 태그 제거)
@@ -188,6 +186,7 @@
         <div class="stat"><span class="stat__label">텍스트 내용</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
         <div class="stat"><span class="stat__label">hwpx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
         <div class="stat"><span class="stat__label">docx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
+        <div class="stat"><span class="stat__label">pdf 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
         <div class="stat"><span class="stat__label">인덱스/캐시</span><span class="stat__bar" data-fill="0"></span><span class="stat__val">0 — 불필요</span></div>
         <p class="stats__note">한글·한컴오피스, MS Word가 <span class="amber">없어도</span> 내용을 검색하고 읽는다.</p>
       </div>
@@ -205,7 +204,7 @@
     <a href="https://github.com/seongilp/ev" target="_blank" rel="noopener">github.com/seongilp/ev</a>
     &nbsp;//&nbsp; MIT-ish &nbsp;//&nbsp; macOS
   </p>
-  <p class="footer__eof">seongilp@mac:~$ <span class="cursor" aria-hidden="true">█</span></p>
+  <p class="footer__eof">you@mac:~$ <span class="cursor" aria-hidden="true">█</span></p>
 </footer>
 
 <script src="main.js"></script>

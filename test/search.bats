@@ -43,6 +43,42 @@ teardown() { rm -rf "$TMP"; }
   [[ "$output" != *"--pre"* ]]
 }
 
+@test "ev_query_exts extracts *.ext tokens (lowercased)" {
+  run ev_query_exts "*.PDF 유동성"
+  [ "$output" = "pdf" ]
+}
+
+@test "ev_query_exts handles multiple globs and none" {
+  run ev_query_exts "*.pdf *.docx 보고서"
+  [ "$output" = "pdf docx" ]
+  run ev_query_exts "그냥검색어"
+  [ -z "$output" ]
+}
+
+@test "ev_query_terms strips glob tokens, keeps the rest" {
+  run ev_query_terms "*.pdf 유동성"
+  [ "$output" = "유동성" ]
+  run ev_query_terms "*.pdf"
+  [ -z "$output" ]
+}
+
+@test "ev_fd_cmd adds --extension when EV_EXTS set" {
+  export EV_EXTS="pdf docx"
+  run ev_fd_cmd /r 0
+  unset EV_EXTS
+  [[ "$output" == *"--extension"* ]]
+  [[ "$output" == *"pdf"* ]]
+  [[ "$output" == *"docx"* ]]
+}
+
+@test "ev_rg_cmd adds -g globs when EV_EXTS set" {
+  export EV_EXTS="pdf"
+  run ev_rg_cmd /r 0 "q"
+  unset EV_EXTS
+  [[ "$output" == *"-g"* ]]
+  [[ "$output" == *"*.pdf"* ]]
+}
+
 @test "ev_fd_cmd lists files under root" {
   run ev_fd_cmd /r 0
   [ "${lines[0]}" = "fd" ]

@@ -94,6 +94,20 @@ _make_docx() {
   [[ "$output" == *"readme.txt"* ]]           # 내용 매치 (rg)
 }
 
+@test "query '*.pdf' filters the listing to pdf files only" {
+  : > "$ROOT/doc.pdf"
+  "$EV" __init
+  FZF_QUERY="*.pdf" run "$EV" __search
+  [[ "$output" == *"doc.pdf"* ]]
+  [[ "$output" != *"note.txt"* ]]
+}
+
+@test "query '*.txt alpha' filters by extension and searches terms" {
+  "$EV" __init; printf 'content\n' > "$STATE/scope"
+  FZF_QUERY="*.txt alpha" run "$EV" __search
+  [[ "$output" == *"note.txt"* ]]    # alpha beta 가 들어있는 txt
+}
+
 @test "toggle-hidden flips 0 -> 1 and emits reload" {
   "$EV" __init
   run "$EV" __toggle-hidden

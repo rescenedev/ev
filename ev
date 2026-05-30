@@ -35,14 +35,18 @@ _ev_run_argv() {            # stdin: 토큰(줄당 1개) → 실행
 
 # 검색: scope에 따라 파일명(fd) / 내용(rg) / 둘 다. 빈 쿼리면 파일 목록.
 _ev_search() {
-  local q="${FZF_QUERY:-}"
-  local hidden scope
+  local rawq="${FZF_QUERY:-}"
+  local hidden scope q
   hidden="$(_ev_hidden)"
   scope="$(_ev_scope)"
+  # '*.확장자' 토큰은 확장자 필터로, 나머지는 실제 검색어로 분리
+  export EV_EXTS="$(ev_query_exts "$rawq")"
+  q="$(ev_query_terms "$rawq")"
   if [ -z "$q" ]; then
-    [ "$scope" = content ] && return 0          # 내용 전용은 쿼리가 있어야 의미
+    # 검색어 없음: content 전용은 결과 없음(단 확장자만 줬으면 파일 목록은 보여줌)
+    if [ "$scope" = content ] && [ -z "$EV_EXTS" ]; then unset EV_EXTS; return 0; fi
     ev_fd_cmd "$EV_ROOT" "$hidden" | _ev_run_argv || true
-    return 0
+    unset EV_EXTS; return 0
   fi
   case "$scope" in
     files)   ev_fd_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true ;;
@@ -50,6 +54,7 @@ _ev_search() {
     *)       ev_fd_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true                  # 파일명
              ev_rg_cmd "$EV_ROOT" "$hidden" "$q" "$EV_EXTRACTOR" | _ev_run_argv || true ;; # 내용(hwpx 포함)
   esac
+  unset EV_EXTS
 }
 
 # 검색 범위 순환: both → files → content → both. 프롬프트 라벨도 바꾼다.

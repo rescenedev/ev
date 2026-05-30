@@ -32,20 +32,20 @@ Ctrl-F: 범위  Ctrl-H: 숨김  Enter: 열기  Ctrl-O: Finder  Ctrl-Y: 복사  ?
 ## 설치
 
 ```bash
-git clone https://github.com/seongilp/ev
-cd ev
-./ev                 # rg/fzf/fd 없으면 자동으로 brew 설치
+curl -fsSL https://seongilp.github.io/ev/install.sh | bash
 ```
 
-PATH에 올리기:
+`~/.ev`에 받아 `~/.local/bin/ev`로 링크한다. `rg/fzf/fd`는 첫 실행 시 자동 설치.
+설치 위치는 `EV_INSTALL_DIR` / `EV_BIN_DIR`로 바꿀 수 있다.
+
+<details><summary>직접 clone 하려면</summary>
 
 ```bash
-# 시스템 경로(/usr/local/bin)는 쓰기 권한이 필요 → sudo
-sudo ln -s "$PWD/ev" /usr/local/bin/ev
-
-# 또는 sudo 없이 사용자 경로에 (PATH에 ~/.local/bin 이 있어야 함)
+git clone https://github.com/seongilp/ev && cd ev && ./ev
+sudo ln -s "$PWD/ev" /usr/local/bin/ev          # 또는
 mkdir -p ~/.local/bin && ln -s "$PWD/ev" ~/.local/bin/ev
 ```
+</details>
 
 ## 사용법
 
