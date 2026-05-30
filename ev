@@ -9,6 +9,7 @@ source "$EV_HOME/lib/editor.sh"
 source "$EV_HOME/lib/preview.sh"
 source "$EV_HOME/lib/search.sh"
 source "$EV_HOME/lib/extract.sh"
+source "$EV_HOME/lib/export.sh"
 
 EV_EXTRACTOR="$EV_HOME/libexec/ev-extract"   # rg --pre / 미리보기용 텍스트 추출기
 
@@ -111,6 +112,51 @@ _ev_open() {                # 인자: file [line]
   fi
 }
 
+# ── 비대화형 CLI (export / 파이프) ─────────────────────────
+_ev_cli_list() {            # ev -l [DIR] [--format F|--json]
+  local dir="." fmt="paths"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --json)   fmt="json" ;;
+      --format) shift; fmt="${1:-paths}" ;;
+      *)        dir="$1" ;;
+    esac
+    shift
+  done
+  { ev_fd_cmd "$dir" 0 | _ev_run_argv | ev_strip_ansi | ev_format "$fmt"; } || true
+}
+
+_ev_cli_grep() {            # ev -g QUERY [DIR] [--format F|--json]
+  local q="" dir="." fmt="lines" gotq=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --json)   fmt="json" ;;
+      --format) shift; fmt="${1:-lines}" ;;
+      *)        if [ "$gotq" -eq 0 ]; then q="$1"; gotq=1; else dir="$1"; fi ;;
+    esac
+    shift
+  done
+  [ -z "$q" ] && { print -u2 "사용법: ev -g <검색어> [디렉터리] [--format F|--json]"; exit 1; }
+  { ev_rg_cmd "$dir" 0 "$q" "$EV_EXTRACTOR" | _ev_run_argv | ev_strip_ansi | ev_format "$fmt"; } || true
+}
+
+_ev_cli_to_txt() {          # ev --to-txt DIR [OUTDIR]
+  local dir="${1:-}" out="${2:-}"
+  [ -z "$dir" ]   && { print -u2 "사용법: ev --to-txt <디렉터리> [출력디렉터리]"; exit 1; }
+  [ -d "$dir" ]   || { print -u2 "디렉터리가 아닙니다: $dir"; exit 1; }
+  out="${out:-$dir}"
+  local count=0 f rel target
+  while IFS= read -r f; do
+    rel="${f#"$dir"/}"
+    target="$out/$rel.txt"
+    mkdir -p "$(dirname "$target")"
+    ev_extract_text "$f" > "$target"
+    print "[OK] $target"
+    count=$((count + 1))
+  done < <(fd -e hwpx -e docx . "$dir" 2>/dev/null)
+  print "변환 완료: ${count}개"
+}
+
 # ── 의존성 자동 설치 ─────────────────────────────────────────
 _ev_ensure_deps() {
   local missing
@@ -168,6 +214,29 @@ _ev_main() {
     --header 'Ctrl-F: 범위  Ctrl-H: 숨김  Enter: 열기  Ctrl-O: Finder  Ctrl-Y: 복사  ?: 미리보기  Esc: 검색어 지움  Ctrl-C: 종료'
 }
 
+_ev_help() {
+  cat <<'EOF'
+ev — 터미널 즉시 파일 검색 (파일명 + 내용, hwpx/docx 포함)
+
+대화형:
+  ev [디렉터리]              현재(또는 지정) 폴더에서 TUI 검색
+
+비대화형 (export / 파이프):
+  ev -l|--list [디렉터리]            파일 목록 출력
+  ev -g|--grep <검색어> [디렉터리]   내용 검색 출력 (hwpx/docx 포함)
+  ev -x|--extract <파일>             파일 평문 추출 출력
+  ev --to-txt <디렉터리> [출력]      폴더 내 hwpx/docx 일괄 .txt 변환
+
+  --format paths|lines|md|csv|json   출력 포맷 (-l 기본 paths, -g 기본 lines)
+  --json                             --format json 과 동일
+
+예:
+  ev -l ~/work --format json | jq .
+  ev -g 유동성 ~/docs --format md > report.md
+  ev -x report.hwpx | less
+EOF
+}
+
 # ── 디스패치 ─────────────────────────────────────────────────
 case "${1:-}" in
   __init)          shift; _ev_init "$@" ;;
@@ -176,6 +245,10 @@ case "${1:-}" in
   __toggle-hidden) _ev_toggle_hidden ;;
   __preview)       shift; _ev_preview "$@" ;;
   __open)          shift; _ev_open "$@" ;;
-  -h|--help)       print "사용법: ev [검색할_디렉터리]  (기본: 현재 폴더)" ;;
+  -l|--list)       shift; _ev_cli_list "$@" ;;
+  -g|--grep)       shift; _ev_cli_grep "$@" ;;
+  -x|--extract)    shift; ev_extract_text "${1:?사용법: ev -x <파일>}" ;;
+  --to-txt)        shift; _ev_cli_to_txt "$@" ;;
+  -h|--help)       _ev_help ;;
   *)               _ev_main "$@" ;;
 esac
