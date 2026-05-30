@@ -8,6 +8,9 @@ source "$EV_HOME/lib/deps.sh"
 source "$EV_HOME/lib/editor.sh"
 source "$EV_HOME/lib/preview.sh"
 source "$EV_HOME/lib/search.sh"
+source "$EV_HOME/lib/extract.sh"
+
+EV_EXTRACTOR="$EV_HOME/libexec/ev-extract"   # rg --pre / 미리보기용 텍스트 추출기
 
 # ── 상태 헬퍼 ────────────────────────────────────────────────
 _ev_hidden() { cat "$EV_STATE/hidden"; }
@@ -40,9 +43,9 @@ _ev_search() {
   fi
   case "$scope" in
     files)   ev_fd_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true ;;
-    content) ev_rg_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true ;;
-    *)       ev_fd_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true     # 파일명
-             ev_rg_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true ;;  # 내용
+    content) ev_rg_cmd "$EV_ROOT" "$hidden" "$q" "$EV_EXTRACTOR" | _ev_run_argv || true ;;
+    *)       ev_fd_cmd "$EV_ROOT" "$hidden" "$q" | _ev_run_argv || true                  # 파일명
+             ev_rg_cmd "$EV_ROOT" "$hidden" "$q" "$EV_EXTRACTOR" | _ev_run_argv || true ;; # 내용(hwpx 포함)
   esac
 }
 
@@ -63,15 +66,32 @@ _ev_toggle_hidden() {
 }
 
 _ev_preview() {             # 인자: file [line]
-  local cmd
-  cmd="$(ev_preview_cmd "$1" "${2:-}")"
-  eval "$cmd" 2>/dev/null || true
+  local file="$1" line="${2:-}"
+  case "$file" in
+    *.hwpx|*.HWPX)          # 추출 텍스트를 보여줌
+      if command -v bat >/dev/null 2>&1; then
+        ev_extract_text "$file" | bat --style=plain --color=always --language=md 2>/dev/null
+      else
+        ev_extract_text "$file"
+      fi
+      ;;
+    *)
+      eval "$(ev_preview_cmd "$file" "$line")" 2>/dev/null || true
+      ;;
+  esac
 }
 
 _ev_open() {                # 인자: file [line]
   local file="$1" line="${2:-}"
   [ -z "$file" ] && return 0
-  # 텍스트면 $EDITOR로 해당 줄에서, 아니면(hwp/pdf/이미지 등) macOS 기본 앱으로 연다.
+  case "$file" in
+    *.hwpx|*.HWPX)          # hwpx는 추출 텍스트를 pager로 (한글 앱 없이도 읽기)
+      if [ "${EV_DRY_RUN:-0}" = 1 ]; then printf 'pager:%s\n' "$file"; return 0; fi
+      ev_extract_text "$file" | less -R
+      return 0
+      ;;
+  esac
+  # 텍스트면 $EDITOR로 해당 줄에서, 아니면(pdf/이미지 등) macOS 기본 앱으로 연다.
   if ev_is_text "$file"; then
     local cmd
     cmd="$(ev_editor_cmd "${EDITOR:-vi}" "$file" "$line")"
@@ -133,10 +153,11 @@ _ev_main() {
     --bind "ctrl-f:transform($self __cycle-scope)" \
     --bind "ctrl-h:transform($self __toggle-hidden)" \
     --bind "enter:become($self __open {1} {2})" \
+    --bind "ctrl-o:execute-silent(open -R {1})" \
     --bind "ctrl-y:execute-silent(printf %s {1} | pbcopy)" \
     --bind '?:toggle-preview' \
     --bind 'esc:abort' \
-    --header 'Ctrl-F: 범위(전체→이름→내용)  Ctrl-H: 숨김  Enter: 열기  Ctrl-Y: 복사  ?: 미리보기'
+    --header 'Ctrl-F: 범위  Ctrl-H: 숨김  Enter: 열기  Ctrl-O: Finder  Ctrl-Y: 복사  ?: 미리보기'
 }
 
 # ── 디스패치 ─────────────────────────────────────────────────

@@ -12,6 +12,16 @@ setup() {
 
 teardown() { rm -rf "$STATE" "$ROOT"; }
 
+# 최소 hwpx(zip) 샘플 생성
+_make_hwpx() {
+  local out="$1" body="$2"
+  local d="$BATS_TEST_TMPDIR/hwpx.$$"
+  mkdir -p "$d/Contents"
+  printf '<hml><hp:p><hp:t>%s</hp:t></hp:p></hml>' "$body" > "$d/Contents/section0.xml"
+  ( cd "$d" && zip -qr "$out" . )
+  rm -rf "$d"
+}
+
 @test "init creates hidden state defaulting to off" {
   run "$EV" __init
   [ "$status" -eq 0 ]
@@ -96,4 +106,23 @@ teardown() { rm -rf "$STATE" "$ROOT"; }
   printf 'PK\003\004\000\000hwpbin' > "$ROOT/doc.hwp"
   EDITOR=vim EV_DRY_RUN=1 run "$EV" __open "$ROOT/doc.hwp" ""
   [ "$output" = "open $ROOT/doc.hwp" ]
+}
+
+@test "open shows hwpx as extracted text in a pager (dry-run)" {
+  _make_hwpx "$ROOT/doc.hwpx" "본문내용"
+  EV_DRY_RUN=1 run "$EV" __open "$ROOT/doc.hwpx" ""
+  [ "$output" = "pager:$ROOT/doc.hwpx" ]
+}
+
+@test "content search finds text inside an hwpx via the extractor" {
+  _make_hwpx "$ROOT/spec.hwpx" "금융투자업규정 일부개정"
+  "$EV" __init; printf 'content\n' > "$STATE/scope"
+  FZF_QUERY="금융투자업규정" run "$EV" __search
+  [[ "$output" == *"spec.hwpx"* ]]
+}
+
+@test "preview renders hwpx as extracted text" {
+  _make_hwpx "$ROOT/p.hwpx" "미리보기확인텍스트"
+  run "$EV" __preview "$ROOT/p.hwpx" ""
+  [[ "$output" == *"미리보기확인텍스트"* ]]
 }

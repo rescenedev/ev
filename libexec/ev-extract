@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+# rg --pre 전처리기: 주어진 파일의 평문 텍스트를 stdout으로 낸다.
+# (hwpx는 추출, 그 외는 그대로) rg가 이 출력으로 검색한다.
+set -euo pipefail
+EV_HOME="${0:A:h:h}"
+source "$EV_HOME/lib/extract.sh"
+ev_extract_text "$1"

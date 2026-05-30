@@ -28,6 +28,19 @@ teardown() { rm -rf "$TMP"; }
   [[ "$output" != *"--hidden"* ]]
 }
 
+@test "ev_rg_cmd adds preprocessor flags when an extractor is given" {
+  run ev_rg_cmd /r 0 "q" /path/to/ev-extract
+  [[ "$output" == *"--pre"* ]]
+  [[ "$output" == *"/path/to/ev-extract"* ]]
+  [[ "$output" == *"--pre-glob"* ]]
+  [[ "$output" == *"*.hwpx"* ]]
+}
+
+@test "ev_rg_cmd omits preprocessor flags when no extractor" {
+  run ev_rg_cmd /r 0 "q"
+  [[ "$output" != *"--pre"* ]]
+}
+
 @test "ev_fd_cmd lists files under root" {
   run ev_fd_cmd /r 0
   [ "${lines[0]}" = "fd" ]
