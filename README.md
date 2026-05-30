@@ -136,8 +136,13 @@ bats test/      # 44 tests
 순수 헬퍼 함수와 rg/fd/추출 동작은 bats로, 대화형 fzf 화면은
 [`docs/MANUAL-CHECKLIST.md`](docs/MANUAL-CHECKLIST.md) 수동 점검으로 검증한다.
 
+## 랜딩 페이지
+
+`site/` 의 정적 페이지(Terminal CLI 테마)를 GitHub Actions로 GitHub Pages에 배포한다.
+Settings → Pages → Source를 **GitHub Actions**로 설정하면 `main` 푸시 시 자동 배포된다.
+
 ---
 
 <div align="center">
-<sub>made with <code>rg</code> + <code>fzf</code> + <code>fd</code> · 단일 zsh 스크립트</sub>
+<sub>built with <a href="https://claude.com/claude-code">Claude</a> · <code>rg</code> + <code>fzf</code> + <code>fd</code> · 단일 zsh 스크립트</sub>
 </div>

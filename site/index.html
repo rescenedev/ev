@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ev // 터미널 즉시 파일 검색</title>
+<meta name="description" content="ev — 터미널에서 타이핑하는 즉시 파일명과 내용을 동시에 찾는 macOS용 Everything. hwpx·docx 한글 문서 속까지. rg + fzf + fd.">
+<meta property="og:title" content="ev // 터미널 즉시 파일 검색">
+<meta property="og:description" content="타이핑하는 순간 파일명과 내용을 동시에 뒤진다. .hwpx · .docx 한글 문서 속까지.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- CRT scanline + vignette overlay -->
+<div class="crt" aria-hidden="true"></div>
+<div class="flicker" aria-hidden="true"></div>
+
+<!-- ===================== TOP BAR ===================== -->
+<header class="topbar">
+  <span class="topbar__id">seongilp@mac</span>
+  <span class="topbar__sep">:</span>
+  <span class="topbar__path">~/work/cli/ev</span>
+  <nav class="topbar__nav">
+    <a href="#install">install</a>
+    <a href="#keys">--help</a>
+    <a href="https://github.com/seongilp/ev" target="_blank" rel="noopener">github</a>
+  </nav>
+</header>
+
+<main>
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <pre class="hero__logo" aria-label="ev">
+███████╗██╗   ██╗
+██╔════╝██║   ██║
+█████╗  ██║   ██║
+██╔══╝  ╚██╗ ██╔╝
+███████╗ ╚████╔╝
+╚══════╝  ╚═══╝</pre>
+
+  <p class="hero__prompt">
+    <span class="prompt__user">seongilp@mac</span><span class="prompt__sep">:</span><span class="prompt__path">~</span><span class="prompt__dollar">$</span>
+    <span id="typed" class="hero__typed"></span><span class="cursor" aria-hidden="true">█</span>
+  </p>
+
+  <h1 class="hero__tagline">터미널에서 <span class="amber">즉시</span> 뜨는 파일 검색</h1>
+  <p class="hero__sub">// 타이핑하는 순간 파일명과 파일 <span class="glow">내용</span>을 동시에 뒤진다 — <span class="amber">.hwpx · .docx</span> 한글 문서 속까지.</p>
+
+  <div class="hero__cta">
+    <a class="btn btn--solid" href="#install">[ INSTALL ]</a>
+    <a class="btn" href="https://github.com/seongilp/ev" target="_blank" rel="noopener">[ GITHUB ]</a>
+  </div>
+
+  <p class="hero__stack">built on <span class="glow">rg</span> · <span class="glow">fzf</span> · <span class="glow">fd</span> // 단일 zsh 스크립트 · 의존성 자동설치</p>
+</section>
+
+<!-- ===================== LIVE DEMO ===================== -->
+<section class="section demo" aria-labelledby="demo-h">
+  <h2 id="demo-h" class="section__title" data-glitch="$ ev .">$ ev .</h2>
+
+  <div class="window window--demo">
+    <div class="window__bar">
+      <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
+      <span class="window__title">ev — 파일명 + 내용 동시 검색</span>
+    </div>
+    <div class="window__body demo__grid">
+      <div class="demo__results">
+        <p class="demo__promptline"><span class="amber">search&gt;</span> <span id="demo-query"></span><span class="cursor" aria-hidden="true">█</span></p>
+        <ul class="demo__list" id="demo-list" aria-live="polite"></ul>
+      </div>
+      <div class="demo__preview">
+        <p class="demo__previewhead">┌── preview ──────────────┐</p>
+        <pre id="demo-preview" class="demo__previewbody"></pre>
+      </div>
+    </div>
+    <div class="window__footer">
+      <span><b>Ctrl-F</b> 범위</span><span><b>Ctrl-H</b> 숨김</span><span><b>Enter</b> 열기</span><span><b>Ctrl-O</b> Finder</span><span class="amber">[OK] 0.04s</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WHY EV ===================== -->
+<section class="section" aria-labelledby="why-h">
+  <h2 id="why-h" class="section__title" data-glitch="// WHY_EV">// WHY_EV</h2>
+  <div class="grid grid--4">
+    <article class="pane">
+      <div class="pane__head">[OK] 즉시성</div>
+      <p>입력할 때마다 <span class="glow">rg/fd</span>가 다시 돌며 결과가 실시간 갱신. 엔터 칠 필요 없음.</p>
+    </article>
+    <article class="pane">
+      <div class="pane__head">[OK] 이름 + 내용</div>
+      <p>파일명 매칭과 파일 내용 매칭을 <span class="glow">한 화면</span>에 합쳐 보여준다. 도구 전환 불필요.</p>
+    </article>
+    <article class="pane">
+      <div class="pane__head">[OK] 한글 문서 관통</div>
+      <p><span class="amber">.hwpx · .docx</span> 본문을 추출 — 한글/Word 앱 없이도 내용 검색·미리보기.</p>
+    </article>
+    <article class="pane">
+      <div class="pane__head">[OK] 가볍다</div>
+      <p>컴파일 없는 단일 스크립트. 의존성은 전부 <span class="glow">brew</span> 한 줄, 없으면 자동 설치.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ===================== INSTALL ===================== -->
+<section class="section" id="install" aria-labelledby="install-h">
+  <h2 id="install-h" class="section__title" data-glitch="$ install">$ install</h2>
+  <div class="window">
+    <div class="window__bar">
+      <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
+      <span class="window__title">bash</span>
+      <button class="copy" data-copy="install-code">[ COPY ]</button>
+    </div>
+    <div class="window__body">
+<pre id="install-code" class="code"><span class="c-comment"># clone & run — rg/fzf/fd 없으면 자동 설치</span>
+<span class="c-cmd">git clone</span> https://github.com/seongilp/ev
+<span class="c-cmd">cd</span> ev && ./ev
+
+<span class="c-comment"># PATH에 올리기 (둘 중 하나)</span>
+<span class="c-cmd">sudo ln -s</span> "$PWD/ev" /usr/local/bin/ev
+<span class="c-cmd">ln -s</span> "$PWD/ev" ~/.local/bin/ev</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== KEYMAP ===================== -->
+<section class="section" id="keys" aria-labelledby="keys-h">
+  <h2 id="keys-h" class="section__title" data-glitch="ev --help">ev --help</h2>
+  <div class="window">
+    <div class="window__bar">
+      <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
+      <span class="window__title">keybindings</span>
+    </div>
+    <div class="window__body">
+      <table class="keys">
+        <tbody>
+          <tr><td class="keys__k">타이핑</td><td class="keys__d">즉시 검색 (파일명 + 내용 동시)</td></tr>
+          <tr><td class="keys__k">Ctrl-F</td><td class="keys__d">범위 순환: 전체 <span class="amber">search&gt;</span> → 파일명 <span class="amber">name&gt;</span> → 내용 <span class="amber">text&gt;</span></td></tr>
+          <tr><td class="keys__k">Ctrl-H</td><td class="keys__d">숨김파일 / .gitignore 포함 토글</td></tr>
+          <tr><td class="keys__k">Enter</td><td class="keys__d">텍스트→에디터(해당 줄) · hwpx→pager · docx/기타→기본 앱</td></tr>
+          <tr><td class="keys__k">Ctrl-O</td><td class="keys__d">선택 파일을 Finder에서 열기</td></tr>
+          <tr><td class="keys__k">Ctrl-Y</td><td class="keys__d">경로 클립보드 복사</td></tr>
+          <tr><td class="keys__k">?</td><td class="keys__d">미리보기 창 토글</td></tr>
+          <tr><td class="keys__k">Esc</td><td class="keys__d">검색어 지우기 (비우면 파일 목록으로 복귀)</td></tr>
+          <tr><td class="keys__k">Ctrl-C</td><td class="keys__d">종료</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DOC SEARCH ===================== -->
+<section class="section" aria-labelledby="doc-h">
+  <h2 id="doc-h" class="section__title" data-glitch="// HWPX + DOCX">// HWPX + DOCX</h2>
+  <div class="grid grid--2">
+    <div class="window">
+      <div class="window__bar">
+        <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
+        <span class="window__title">how it works</span>
+      </div>
+      <div class="window__body">
+<pre class="diagram">검색어 입력
+  │
+  ├─ 일반 파일 ───────────→ rg 직접 검색
+  │
+  └─ *.hwpx / *.docx
+        │
+        ▼
+     <span class="amber">ev-extract</span>  (unzip + 태그 제거)
+        │
+        ▼
+     추출 텍스트를 rg 가 검색
+        │
+        ▼
+     <span class="glow">원본 파일 경로로 결과 표시</span></pre>
+      </div>
+    </div>
+    <div class="window">
+      <div class="window__bar">
+        <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
+        <span class="window__title">coverage</span>
+      </div>
+      <div class="window__body stats">
+        <div class="stat"><span class="stat__label">파일명 검색</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
+        <div class="stat"><span class="stat__label">텍스트 내용</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
+        <div class="stat"><span class="stat__label">hwpx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
+        <div class="stat"><span class="stat__label">docx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
+        <div class="stat"><span class="stat__label">인덱스/캐시</span><span class="stat__bar" data-fill="0"></span><span class="stat__val">0 — 불필요</span></div>
+        <p class="stats__note">한글·한컴오피스, MS Word가 <span class="amber">없어도</span> 내용을 검색하고 읽는다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="footer__rule">================================================================</div>
+  <p class="footer__line"><span class="amber">[OK]</span> built with <span class="glow">rg</span> + <span class="glow">fzf</span> + <span class="glow">fd</span> · 단일 zsh 스크립트</p>
+  <p class="footer__line">
+    <a href="https://github.com/seongilp/ev" target="_blank" rel="noopener">github.com/seongilp/ev</a>
+    &nbsp;//&nbsp; MIT-ish &nbsp;//&nbsp; macOS
+  </p>
+  <p class="footer__eof">seongilp@mac:~$ <span class="cursor" aria-hidden="true">█</span></p>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
