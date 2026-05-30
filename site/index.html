@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=4">
+<link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 <!-- CRT scanline + vignette overlay -->
@@ -136,16 +136,60 @@
       <table class="keys">
         <tbody>
           <tr><td class="keys__k">타이핑</td><td class="keys__d">즉시 검색 (파일명 + 내용 동시)</td></tr>
+          <tr><td class="keys__k">*.확장자</td><td class="keys__d">그 확장자만 필터 — 예: <span class="amber">*.pdf 유동성</span> = pdf 안에서 검색</td></tr>
           <tr><td class="keys__k">Ctrl-F</td><td class="keys__d">범위 순환: 전체 <span class="amber">search&gt;</span> → 파일명 <span class="amber">name&gt;</span> → 내용 <span class="amber">text&gt;</span></td></tr>
           <tr><td class="keys__k">Ctrl-H</td><td class="keys__d">숨김파일 / .gitignore 포함 토글</td></tr>
-          <tr><td class="keys__k">Enter</td><td class="keys__d">텍스트→에디터(해당 줄) · hwpx→pager · docx/기타→기본 앱</td></tr>
+          <tr><td class="keys__k">Enter</td><td class="keys__d">텍스트→에디터(해당 줄) · hwpx→pager · docx/pdf/기타→기본 앱</td></tr>
           <tr><td class="keys__k">Ctrl-O</td><td class="keys__d">선택 파일을 Finder에서 열기</td></tr>
-          <tr><td class="keys__k">Ctrl-Y</td><td class="keys__d">경로 클립보드 복사</td></tr>
+          <tr><td class="keys__k">Tab</td><td class="keys__d">항목 마킹(다중 선택) · <span class="amber">Ctrl-A</span> 전체 토글</td></tr>
+          <tr><td class="keys__k">Ctrl-E</td><td class="keys__d">선택(없으면 현재) 결과를 Markdown으로 내보내기</td></tr>
+          <tr><td class="keys__k">Ctrl-Y</td><td class="keys__d">선택(없으면 현재) 경로 클립보드 복사</td></tr>
+          <tr><td class="keys__k">Ctrl-G</td><td class="keys__d">선택(없으면 현재) 파일을 zip으로 모으기</td></tr>
           <tr><td class="keys__k">?</td><td class="keys__d">미리보기 창 토글</td></tr>
           <tr><td class="keys__k">Esc</td><td class="keys__d">검색어 지우기 (비우면 파일 목록으로 복귀)</td></tr>
           <tr><td class="keys__k">Ctrl-C</td><td class="keys__d">종료</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== EXPORT / CLI ===================== -->
+<section class="section" aria-labelledby="cli-h">
+  <h2 id="cli-h" class="section__title" data-glitch="// EXPORT">// EXPORT</h2>
+  <div class="grid grid--2">
+    <div class="window">
+      <div class="window__bar">
+        <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
+        <span class="window__title">비대화형 / 파이프</span>
+      </div>
+      <div class="window__body">
+<pre class="code"><span class="c-cmd">ev -l</span> [디렉터리]              <span class="c-comment"># 파일 목록</span>
+<span class="c-cmd">ev -g</span> &lt;검색어&gt; [디렉터리]     <span class="c-comment"># 내용 검색 (hwpx/docx/pdf)</span>
+<span class="c-cmd">ev -x</span> &lt;파일&gt;                  <span class="c-comment"># 평문 추출</span>
+<span class="c-cmd">ev --to-txt</span> &lt;디렉터리&gt;        <span class="c-comment"># 문서 일괄 .txt 변환</span>
+
+<span class="c-comment"># --format paths|lines|md|csv|json</span>
+<span class="c-cmd">ev -g</span> 유동성 ~/docs --format md &gt; report.md
+<span class="c-cmd">ev -l</span> ~/work --json | jq .</pre>
+      </div>
+    </div>
+    <div class="window">
+      <div class="window__bar">
+        <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
+        <span class="window__title">TUI에서 바로 내보내기</span>
+      </div>
+      <div class="window__body">
+        <table class="keys">
+          <tbody>
+            <tr><td class="keys__k">Tab</td><td class="keys__d">결과 마킹 → 선택분만 대상</td></tr>
+            <tr><td class="keys__k">Ctrl-E</td><td class="keys__d">Markdown 리포트로 저장</td></tr>
+            <tr><td class="keys__k">Ctrl-Y</td><td class="keys__d">경로 클립보드 복사</td></tr>
+            <tr><td class="keys__k">Ctrl-G</td><td class="keys__d">선택 파일 zip으로 모으기</td></tr>
+          </tbody>
+        </table>
+        <p class="stats__note">저장 위치: <span class="amber">$EV_EXPORT_DIR</span> (기본 <span class="glow">~</span>)</p>
+      </div>
     </div>
   </div>
 </section>
@@ -207,6 +251,6 @@
   <p class="footer__eof">you@mac:~$ <span class="cursor" aria-hidden="true">█</span></p>
 </footer>
 
-<script src="main.js?v=4"></script>
+<script src="main.js?v=5"></script>
 </body>
 </html>
