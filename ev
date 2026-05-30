@@ -68,20 +68,31 @@ _ev_toggle_hidden() {
   printf 'reload(%s __search)' "$EV_HOME/ev"
 }
 
+# 추출 텍스트를 줄번호와 함께, 매칭 줄 강조해서 출력
+_ev_preview_extracted() {   # 인자: file [line]
+  local file="$1" line="${2:-}"
+  if command -v bat >/dev/null 2>&1; then
+    if [ -n "$line" ]; then
+      ev_extract_text "$file" | bat --style=numbers --color=always --language=md --highlight-line "$line" 2>/dev/null
+    else
+      ev_extract_text "$file" | bat --style=numbers --color=always --language=md 2>/dev/null
+    fi
+  else
+    ev_extract_text "$file" | cat -n
+  fi
+}
+
 _ev_preview() {             # 인자: file [line]
   local file="$1" line="${2:-}"
   case "$file" in
-    *.hwpx|*.HWPX|*.docx|*.DOCX)   # 추출 텍스트를 보여주되, 매칭 줄을 강조
-      if command -v bat >/dev/null 2>&1; then
-        if [ -n "$line" ]; then
-          ev_extract_text "$file" | bat --style=numbers --color=always --language=md --highlight-line "$line" 2>/dev/null
-        else
-          ev_extract_text "$file" | bat --style=numbers --color=always --language=md 2>/dev/null
-        fi
+    *.hwpx|*.HWPX|*.docx|*.DOCX)
+      _ev_preview_extracted "$file" "$line" ;;
+    *.pdf|*.PDF)
+      if command -v pdftotext >/dev/null 2>&1; then
+        _ev_preview_extracted "$file" "$line"
       else
-        ev_extract_text "$file" | cat -n
-      fi
-      ;;
+        ev_file_info "$file"; printf '\n[hint] PDF 본문 보기: brew install poppler\n'
+      fi ;;
     *)
       if ev_is_text "$file"; then
         eval "$(ev_preview_cmd "$file" "$line")" 2>/dev/null || true

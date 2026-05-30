@@ -14,11 +14,18 @@ _ev_extract_zip_xml() {
     | perl -CSD -ne 'print if /\S/'
 }
 
+# PDF → 평문 (poppler의 pdftotext 필요; 없으면 빈 출력)
+_ev_extract_pdf() {
+  command -v pdftotext >/dev/null 2>&1 || return 0
+  pdftotext -q -nopgbrk -- "$1" - 2>/dev/null
+}
+
 ev_extract_text() {
   local file="$1"
   case "$file" in
     *.hwpx|*.HWPX) _ev_extract_zip_xml "$file" 'Contents/section[0-9]+\.xml' ;;
     *.docx|*.DOCX) _ev_extract_zip_xml "$file" 'word/document\.xml' ;;
+    *.pdf|*.PDF)   _ev_extract_pdf "$file" ;;
     *)             cat -- "$file" 2>/dev/null; return 0 ;;
   esac
 }

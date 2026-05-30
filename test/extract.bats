@@ -48,6 +48,30 @@ _make_docx() {
   [[ "$output" == *"이력서 본문 추출테스트"* ]]
 }
 
+# 최소 PDF(텍스트 포함) 생성
+_make_pdf() {
+  local out="$1" body="$2"
+  printf '%s\n' \
+'%PDF-1.4' \
+'1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj' \
+'2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj' \
+'3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 300 200]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>endobj' \
+'4 0 obj<</Length 60>>stream' \
+"BT /F1 24 Tf 20 100 Td ($body) Tj ET" \
+'endstream endobj' \
+'5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj' \
+'trailer<</Root 1 0 R>>' \
+'%%EOF' > "$out"
+}
+
+@test "ev_extract_text pulls text from a pdf (needs pdftotext)" {
+  command -v pdftotext >/dev/null 2>&1 || skip "pdftotext 미설치"
+  local f="$BATS_TEST_TMPDIR/sample.pdf"
+  _make_pdf "$f" "PDFSEARCHABLE"
+  run ev_extract_text "$f"
+  [[ "$output" == *"PDFSEARCHABLE"* ]]
+}
+
 @test "ev_extract_text passes through non-hwpx files unchanged" {
   local f="$BATS_TEST_TMPDIR/plain.txt"
   printf 'just plain text\n' > "$f"

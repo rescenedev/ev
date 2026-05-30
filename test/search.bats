@@ -34,6 +34,8 @@ teardown() { rm -rf "$TMP"; }
   [[ "$output" == *"/path/to/ev-extract"* ]]
   [[ "$output" == *"--pre-glob"* ]]
   [[ "$output" == *"*.hwpx"* ]]
+  [[ "$output" == *"*.docx"* ]]
+  [[ "$output" == *"*.pdf"* ]]
 }
 
 @test "ev_rg_cmd omits preprocessor flags when no extractor" {
