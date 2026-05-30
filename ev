@@ -164,8 +164,8 @@ _ev_main() {
     --bind "ctrl-o:execute-silent(open -R {1})" \
     --bind "ctrl-y:execute-silent(printf %s {1} | pbcopy)" \
     --bind '?:toggle-preview' \
-    --bind 'esc:abort' \
-    --header 'Ctrl-F: 범위  Ctrl-H: 숨김  Enter: 열기  Ctrl-O: Finder  Ctrl-Y: 복사  ?: 미리보기'
+    --bind 'esc:clear-query' \
+    --header 'Ctrl-F: 범위  Ctrl-H: 숨김  Enter: 열기  Ctrl-O: Finder  Ctrl-Y: 복사  ?: 미리보기  Esc: 검색어 지움  Ctrl-C: 종료'
 }
 
 # ── 디스패치 ─────────────────────────────────────────────────
