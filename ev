@@ -80,7 +80,11 @@ _ev_preview() {             # 인자: file [line]
       fi
       ;;
     *)
-      eval "$(ev_preview_cmd "$file" "$line")" 2>/dev/null || true
+      if ev_is_text "$file"; then
+        eval "$(ev_preview_cmd "$file" "$line")" 2>/dev/null || true
+      else
+        ev_file_info "$file"        # 바이너리는 bat 경고 대신 파일 정보
+      fi
       ;;
   esac
 }

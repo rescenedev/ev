@@ -53,6 +53,21 @@ teardown() { rm -rf "$TMP"; }
   [ "${lines[${#lines[@]}-1]}" = "/r" ]
 }
 
+@test "ev_fd_cmd excludes binary artifacts like .so" {
+  run ev_fd_cmd /r 0
+  [[ "$output" == *"--exclude"* ]]
+  [[ "$output" == *"*.so"* ]]
+}
+
+@test "fd command actually skips .so files (integration)" {
+  printf 'x' > "$TMP/lib.so"
+  local cmd=()
+  while IFS= read -r tok; do cmd+=("$tok"); done < <(ev_fd_cmd "$TMP" 0)
+  run "${cmd[@]}"
+  [[ "$output" != *"lib.so"* ]]
+  [[ "$output" == *"a.txt"* ]]
+}
+
 @test "rg command actually finds matches in temp dir (integration)" {
   local cmd=()
   while IFS= read -r tok; do cmd+=("$tok"); done < <(ev_rg_cmd "$TMP" 0 "hello")

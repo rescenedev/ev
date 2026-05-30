@@ -21,3 +21,12 @@ setup() {
   run ev_preview_cmd /tmp/a.txt 42
   [ "$output" = "cat -n /tmp/a.txt" ]
 }
+
+@test "ev_file_info shows type and size for a file" {
+  local f="$BATS_TEST_TMPDIR/blob.bin"; printf 'PK\003\004\000\000data' > "$f"
+  run ev_file_info "$f"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"유형"* ]]
+  [[ "$output" == *"크기"* ]]
+  [[ "$output" == *"blob.bin"* ]]
+}
