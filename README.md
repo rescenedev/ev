@@ -31,6 +31,19 @@ Ctrl-F: 범위  Ctrl-H: 숨김  Enter: 열기  Ctrl-O: Finder  Ctrl-Y: 복사  ?
 
 ## 설치
 
+### Homebrew (권장)
+
+```bash
+brew tap seongilp/ev      # 한 번만
+brew install ev           # 이후엔 그냥 ev
+brew upgrade ev           # 업데이트
+```
+
+`rg`/`fzf`/`fd`는 의존성으로 함께 설치되고, `bat`(미리보기 하이라이트)·`poppler`(PDF 추출)는 권장 의존성으로 같이 깔린다.
+최신 `main`을 쓰려면 `brew install --HEAD seongilp/ev/ev`.
+
+### 설치 스크립트
+
 ```bash
 curl -fsSL https://seongilp.github.io/ev/install.sh | bash
 ```
