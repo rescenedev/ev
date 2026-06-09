@@ -30,6 +30,20 @@
     revealEls.forEach((el) => el.classList.add("is-in"));
   }
 
+  // 쇼케이스 스크린샷 토글 (텍스트 ↔ 비주얼) — Ctrl-V 동작을 그대로 재현
+  const shotImg = document.getElementById("shot-img");
+  const shotSrc = { text: "shot-text.png", visual: "shot-visual.png" };
+  document.querySelectorAll(".shot__btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mode = btn.dataset.shot;
+      if (!shotImg || !shotSrc[mode]) return;
+      shotImg.src = shotSrc[mode];
+      document
+        .querySelectorAll(".shot__btn")
+        .forEach((b) => b.classList.toggle("is-active", b === btn));
+    });
+  });
+
   // 코드 복사 버튼
   document.querySelectorAll(".copy").forEach((btn) => {
     btn.addEventListener("click", async () => {

@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ev — 터미널에서 찾는 순간, 끝.</title>
+<title>ev — 터미널에서 찾는 순간 끝.</title>
 <meta name="description" content="ev — 터미널에서 타이핑하는 즉시 파일명과 내용을 동시에 찾는 macOS용 검색기. hwpx·docx·pptx·xlsx·pdf 문서 속까지 검색하고, Finder처럼 미리보기까지.">
-<meta property="og:title" content="ev — 터미널에서 찾는 순간, 끝.">
+<meta property="og:title" content="ev — 터미널에서 찾는 순간 끝.">
 <meta property="og:description" content="타이핑하는 순간 파일명과 내용을 동시에. 한글 문서 속까지 검색하고, 터미널에서 Finder처럼 미리본다.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#ffffff">
-<link rel="stylesheet" href="styles.css?v=1">
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
 
@@ -47,32 +47,23 @@
     <p class="lead">검색 결과 위에서 <b>Ctrl-V</b> 한 번. 한글 문서가 터미널 안에 그대로 펼쳐진다.</p>
   </div>
 
-  <div class="window reveal">
-    <div class="window__bar">
-      <span class="dot dot--r"></span><span class="dot dot--y"></span><span class="dot dot--g"></span>
-      <span class="window__title">ev — 파일명 + 내용 + 비주얼 미리보기</span>
+  <div class="shot reveal">
+    <div class="shot__toggle" role="tablist" aria-label="미리보기 모드">
+      <button class="shot__btn" data-shot="text" role="tab">텍스트</button>
+      <button class="shot__btn is-active" data-shot="visual" role="tab">Ctrl-V 비주얼</button>
     </div>
-    <div class="window__body">
-      <div class="ide">
-        <div class="ide__list">
-          <p class="ide__prompt"><span class="ide__pmark">search&gt;</span> 유동성</p>
-          <ul class="ide__results">
-            <li class="ide__item is-active">📄 금융투자업규정 일부개정고시안.hwpx<span class="ide__hit">:12 유동성 리스크 관리</span></li>
-            <li class="ide__item">📄 2026 리스크관리 보고서.docx<span class="ide__hit">:4 유동성 비율</span></li>
-            <li class="ide__item">📄 자금시장 동향.pdf<span class="ide__hit">:9 유동성 공급</span></li>
-            <li class="ide__item">📄 분기재무.xlsx<span class="ide__hit">:21 유동성</span></li>
-            <li class="ide__item">📄 유동성_메모.md</li>
-          </ul>
-          <p class="ide__foot"><b>Ctrl-V</b> 비주얼 · <b>Ctrl-F</b> 범위 · <b>Enter</b> 열기</p>
-        </div>
-        <div class="ide__preview">
-          <span class="ide__badge">비주얼 미리보기</span>
-          <img src="demo-doc.png" alt="hwpx 문서가 터미널 미리보기 창에 이미지로 렌더된 모습" loading="lazy">
-        </div>
-      </div>
+    <div class="shot__frame">
+      <img id="shot-img" src="shot-visual.png" alt="ev에서 hwpx 문서를 Ctrl-V 비주얼 미리보기로 렌더한 실제 화면" loading="lazy">
     </div>
   </div>
-  <p class="showcase__cap reveal">실제 hwpx 문서가 <b>QuickLook</b>으로 렌더되어 미리보기 창에 인라인으로 표시됩니다. <span class="muted">Ghostty · kitty · WezTerm</span></p>
+  <p class="showcase__cap reveal">실제 <b>ev</b> 화면 — 같은 hwpx를 <b>Ctrl-V</b>로 텍스트 ↔ 이미지 전환. <span class="muted">Ghostty · QuickLook</span></p>
+</section>
+
+<!-- ===================== SCALE ===================== -->
+<section class="scale">
+  <p class="scale__num reveal">수십만 개</p>
+  <p class="scale__line reveal">파일이 쌓여도, 인덱스 없이 즉시.</p>
+  <p class="scale__sub reveal">rg와 fd가 스트리밍으로 훑는다. 색인을 만들 필요도, 갱신을 기다릴 필요도 없다 — 폴더가 아무리 커도 타이핑하는 순간 결과가 나온다.</p>
 </section>
 
 <!-- ===================== FEATURES ===================== -->
@@ -153,6 +144,6 @@
   </p>
 </footer>
 
-<script src="main.js?v=1"></script>
+<script src="main.js?v=2"></script>
 </body>
 </html>
