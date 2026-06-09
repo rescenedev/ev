@@ -291,6 +291,10 @@ kbd {
   .nav { background: rgba(0, 0, 0, 0.72); }
   kbd { background: #1c1c1e; }
   .install__alt code, .install__opt code { background: #1c1c1e; color: #ddd; }
+  .shot__btn.is-active {
+    background: #2c2c2e; color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
