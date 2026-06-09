@@ -32,6 +32,12 @@ setup() {
   [ "$output" = "chafa" ]
 }
 
+# ── ev_clear_images ──────────────────────────────────────────
+@test "clear images emits kitty delete-all escape" {
+  run ev_clear_images
+  [[ "$output" == *"a=d"* ]]
+}
+
 # ── ev_render_image_cmd ──────────────────────────────────────
 @test "render image cmd includes format size and path" {
   run ev_render_image_cmd /tmp/x.png 80 40

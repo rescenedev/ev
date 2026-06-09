@@ -25,6 +25,11 @@ ev_thumb_path() {
   printf '%s/%s.png\n' "$dir" "$key"
 }
 
+# 화면에 그려둔 모든 kitty 이미지를 삭제하는 escape 출력 (미리보기 전환 시 잔상 제거).
+ev_clear_images() {
+  printf '\033_Ga=d,d=A\033\\'
+}
+
 # chafa 렌더 명령 문자열을 stdout으로 출력 (호출부에서 eval).
 # 사용법: ev_render_image_cmd <png> <cols> <lines>
 ev_render_image_cmd() {

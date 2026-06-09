@@ -122,6 +122,8 @@ _ev_preview_visual() {      # 인자: file
 
 _ev_preview() {             # 인자: file [line]
   local file="$1" line="${2:-}"
+  # 직전 미리보기에서 그린 인라인 이미지를 먼저 지운다(텍스트로 바뀔 때 잔상 방지).
+  if ev_graphics_supported; then ev_clear_images; fi
   if [ "${EV_STATE:+x}" = x ] && [ -f "$EV_STATE/visual" ] && [ "$(_ev_visual)" = 1 ]; then
     _ev_preview_visual "$file" && return 0
   fi
