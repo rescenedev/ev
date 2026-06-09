@@ -3,240 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ev // 터미널 즉시 파일 검색</title>
-<meta name="description" content="ev — 터미널에서 타이핑하는 즉시 파일명과 내용을 동시에 찾는 macOS용 Everything. hwpx·docx·pptx·xlsx·pdf 문서 속까지. rg + fzf + fd.">
-<meta property="og:title" content="ev // 터미널 즉시 파일 검색">
-<meta property="og:description" content="타이핑하는 순간 파일명과 내용을 동시에 뒤진다. .hwpx · .docx · .pptx · .xlsx · .pdf 한글 문서 속까지.">
+<title>ev — 터미널에서 찾는 순간, 끝.</title>
+<meta name="description" content="ev — 터미널에서 타이핑하는 즉시 파일명과 내용을 동시에 찾는 macOS용 검색기. hwpx·docx·pptx·xlsx·pdf 문서 속까지 검색하고, Finder처럼 미리보기까지.">
+<meta property="og:title" content="ev — 터미널에서 찾는 순간, 끝.">
+<meta property="og:description" content="타이핑하는 순간 파일명과 내용을 동시에. 한글 문서 속까지 검색하고, 터미널에서 Finder처럼 미리본다.">
 <meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=6">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="styles.css?v=1">
 </head>
 <body>
-<!-- CRT scanline + vignette overlay -->
-<div class="crt" aria-hidden="true"></div>
-<div class="flicker" aria-hidden="true"></div>
 
-<!-- ===================== TOP BAR ===================== -->
-<header class="topbar">
-  <span class="topbar__id">you@mac</span>
-  <span class="topbar__sep">:</span>
-  <span class="topbar__path">~/work/cli/ev</span>
-  <nav class="topbar__nav">
-    <a href="#install">install</a>
-    <a href="#keys">--help</a>
-    <a href="https://github.com/seongilp/ev" target="_blank" rel="noopener">github</a>
-  </nav>
+<!-- ===================== NAV ===================== -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="#top">ev</a>
+    <nav class="nav__links">
+      <a href="#preview">미리보기</a>
+      <a href="#features">기능</a>
+      <a href="#install">설치</a>
+      <a href="https://github.com/rescenedev/ev" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
 </header>
 
-<main>
+<main id="top">
+
 <!-- ===================== HERO ===================== -->
 <section class="hero">
-  <pre class="hero__logo" aria-label="ev">
-███████╗██╗   ██╗
-██╔════╝██║   ██║
-█████╗  ██║   ██║
-██╔══╝  ╚██╗ ██╔╝
-███████╗ ╚████╔╝
-╚══════╝  ╚═══╝</pre>
-
-  <p class="hero__prompt">
-    <span class="prompt__user">you@mac</span><span class="prompt__sep">:</span><span class="prompt__path">~</span><span class="prompt__dollar">$</span>
-    <span id="typed" class="hero__typed"></span><span class="cursor" aria-hidden="true">█</span>
-  </p>
-
-  <h1 class="hero__tagline">터미널에서 <span class="amber">즉시</span> 뜨는 파일 검색</h1>
-  <p class="hero__sub">// 타이핑하는 순간 파일명과 파일 <span class="glow">내용</span>을 동시에 뒤진다 — <span class="amber">.hwpx · .docx · .pptx · .xlsx · .pdf</span> 한글 문서 속까지.</p>
-
-  <div class="hero__cta">
-    <a class="btn btn--solid" href="#install">[ INSTALL ]</a>
-    <a class="btn" href="https://github.com/seongilp/ev" target="_blank" rel="noopener">[ GITHUB ]</a>
+  <p class="hero__eyebrow reveal">macOS · 터미널 파일 검색</p>
+  <h1 class="hero__title reveal">찾는 순간,<br>끝.</h1>
+  <p class="hero__sub reveal">타이핑하는 그 순간 파일명과 내용을 동시에 뒤진다.<br><b>hwpx · docx · pptx · xlsx · pdf</b> 문서 속까지.</p>
+  <div class="hero__cta reveal">
+    <a class="btn btn--primary" href="#install">설치하기</a>
+    <a class="btn btn--ghost" href="#preview">미리보기 보기 ↓</a>
   </div>
-
-  <p class="hero__stack">built on <span class="glow">rg</span> · <span class="glow">fzf</span> · <span class="glow">fd</span> // 단일 zsh 스크립트 · 의존성 자동설치</p>
+  <p class="hero__note reveal">rg · fzf · fd 위에 올린 단일 zsh 스크립트 · 의존성 자동설치</p>
 </section>
 
-<!-- ===================== LIVE DEMO ===================== -->
-<section class="section demo" aria-labelledby="demo-h">
-  <h2 id="demo-h" class="section__title" data-glitch="$ ev .">$ ev .</h2>
+<!-- ===================== PREVIEW SHOWCASE ===================== -->
+<section class="showcase" id="preview">
+  <div class="showcase__head reveal">
+    <h2 class="h2">터미널에서, Finder처럼.</h2>
+    <p class="lead">검색 결과 위에서 <b>Ctrl-V</b> 한 번. 한글 문서가 터미널 안에 그대로 펼쳐진다.</p>
+  </div>
 
-  <div class="window window--demo">
+  <div class="window reveal">
     <div class="window__bar">
-      <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
-      <span class="window__title">ev — 파일명 + 내용 동시 검색</span>
+      <span class="dot dot--r"></span><span class="dot dot--y"></span><span class="dot dot--g"></span>
+      <span class="window__title">ev — 파일명 + 내용 + 비주얼 미리보기</span>
     </div>
-    <div class="window__body demo__grid">
-      <div class="demo__results">
-        <p class="demo__promptline"><span class="amber">search&gt;</span> <span id="demo-query"></span><span class="cursor" aria-hidden="true">█</span></p>
-        <ul class="demo__list" id="demo-list" aria-live="polite"></ul>
+    <div class="window__body">
+      <div class="ide">
+        <div class="ide__list">
+          <p class="ide__prompt"><span class="ide__pmark">search&gt;</span> 유동성</p>
+          <ul class="ide__results">
+            <li class="ide__item is-active">📄 금융투자업규정 일부개정고시안.hwpx<span class="ide__hit">:12 유동성 리스크 관리</span></li>
+            <li class="ide__item">📄 2026 리스크관리 보고서.docx<span class="ide__hit">:4 유동성 비율</span></li>
+            <li class="ide__item">📄 자금시장 동향.pdf<span class="ide__hit">:9 유동성 공급</span></li>
+            <li class="ide__item">📄 분기재무.xlsx<span class="ide__hit">:21 유동성</span></li>
+            <li class="ide__item">📄 유동성_메모.md</li>
+          </ul>
+          <p class="ide__foot"><b>Ctrl-V</b> 비주얼 · <b>Ctrl-F</b> 범위 · <b>Enter</b> 열기</p>
+        </div>
+        <div class="ide__preview">
+          <span class="ide__badge">비주얼 미리보기</span>
+          <img src="demo-doc.png" alt="hwpx 문서가 터미널 미리보기 창에 이미지로 렌더된 모습" loading="lazy">
+        </div>
       </div>
-      <div class="demo__preview">
-        <p class="demo__previewhead">┌── preview ──────────────┐</p>
-        <pre id="demo-preview" class="demo__previewbody"></pre>
-      </div>
-    </div>
-    <div class="window__footer">
-      <span><b>Ctrl-F</b> 범위</span><span><b>Ctrl-H</b> 숨김</span><span><b>Enter</b> 열기</span><span><b>Ctrl-O</b> Finder</span><span class="amber">[OK] 0.04s</span>
     </div>
   </div>
+  <p class="showcase__cap reveal">실제 hwpx 문서가 <b>QuickLook</b>으로 렌더되어 미리보기 창에 인라인으로 표시됩니다. <span class="muted">Ghostty · kitty · WezTerm</span></p>
 </section>
 
-<!-- ===================== WHY EV ===================== -->
-<section class="section" aria-labelledby="why-h">
-  <h2 id="why-h" class="section__title" data-glitch="// WHY_EV">// WHY_EV</h2>
-  <div class="grid grid--4">
-    <article class="pane">
-      <div class="pane__head">[OK] 즉시성</div>
-      <p>입력할 때마다 <span class="glow">rg/fd</span>가 다시 돌며 결과가 실시간 갱신. 엔터 칠 필요 없음.</p>
-    </article>
-    <article class="pane">
-      <div class="pane__head">[OK] 이름 + 내용</div>
-      <p>파일명 매칭과 파일 내용 매칭을 <span class="glow">한 화면</span>에 합쳐 보여준다. 도구 전환 불필요.</p>
-    </article>
-    <article class="pane">
-      <div class="pane__head">[OK] 한글 문서 관통</div>
-      <p><span class="amber">.hwpx · .docx · .pptx · .xlsx · .pdf</span> 본문을 추출 — 한글/Word 앱 없이도 내용 검색·미리보기.</p>
-    </article>
-    <article class="pane">
-      <div class="pane__head">[OK] 가볍다</div>
-      <p>컴파일 없는 단일 스크립트. 의존성은 전부 <span class="glow">brew</span> 한 줄, 없으면 자동 설치.</p>
-    </article>
-  </div>
+<!-- ===================== FEATURES ===================== -->
+<section class="features" id="features">
+  <article class="feature reveal">
+    <h3 class="feature__title">입력하는 순간 검색</h3>
+    <p class="feature__desc">엔터를 누를 필요 없다. 한 글자 칠 때마다 rg와 fd가 다시 돌며 결과가 실시간으로 갱신된다. 인덱스도, 캐시도 없다.</p>
+  </article>
+  <article class="feature reveal">
+    <h3 class="feature__title">이름과 내용을 한 화면에</h3>
+    <p class="feature__desc">파일명 매칭과 본문 매칭을 한곳에 합쳐 보여준다. 도구를 갈아탈 필요 없이, 찾던 것이 어디에 있든 바로 나온다.</p>
+  </article>
+  <article class="feature reveal">
+    <h3 class="feature__title">한글 문서를 관통한다</h3>
+    <p class="feature__desc">hwpx · docx · pptx · xlsx · pdf 본문을 직접 추출해 검색한다. 한글·한컴오피스, MS Word가 없어도 내용을 찾고 읽는다.</p>
+  </article>
+  <article class="feature reveal">
+    <h3 class="feature__title">Finder처럼 미리본다</h3>
+    <p class="feature__desc">Ctrl-V로 문서 첫 페이지를 터미널 안에 이미지로 렌더한다. macOS QuickLook 엔진을 그대로 쓰니, 보이는 그대로다.</p>
+  </article>
 </section>
 
 <!-- ===================== INSTALL ===================== -->
-<section class="section" id="install" aria-labelledby="install-h">
-  <h2 id="install-h" class="section__title" data-glitch="$ install">$ install</h2>
-  <div class="window">
-    <div class="window__bar">
-      <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
-      <span class="window__title">bash</span>
-      <button class="copy" data-copy="install-code">[ COPY ]</button>
-    </div>
-    <div class="window__body">
-<pre id="install-code" class="code"><span class="c-comment"># 한 줄 설치 — rg/fzf/fd 는 첫 실행 시 자동 설치</span>
-<span class="c-cmd">curl -fsSL</span> https://seongilp.github.io/ev/install.sh | bash
+<section class="install" id="install">
+  <h2 class="h2 reveal">한 줄이면 끝.</h2>
+  <p class="lead reveal">rg · fzf · fd 는 첫 실행 시 자동 설치됩니다.</p>
+  <div class="code-card reveal">
+    <button class="copy" data-copy="install-cmd" aria-label="복사">복사</button>
+    <pre id="install-cmd"><code>curl -fsSL https://rescenedev.github.io/ev/install.sh | bash</code></pre>
+  </div>
+  <p class="install__alt reveal">또는 <code>git clone https://github.com/rescenedev/ev &amp;&amp; cd ev &amp;&amp; ./ev</code></p>
+  <p class="install__opt reveal muted">비주얼 미리보기: <code>brew install chafa</code> · hwpx 렌더: <code>brew install --cask rescenedev/tap/alhangeul</code></p>
+</section>
 
-<span class="c-comment"># 또는 직접 clone</span>
-<span class="c-cmd">git clone</span> https://github.com/seongilp/ev && <span class="c-cmd">cd</span> ev && ./ev</pre>
-    </div>
+<!-- ===================== KEYS ===================== -->
+<section class="keys">
+  <h2 class="h2 reveal">손이 기억하는 단축키</h2>
+  <div class="keys__grid reveal">
+    <div class="keys__row"><kbd>타이핑</kbd><span>즉시 검색 (파일명 + 내용)</span></div>
+    <div class="keys__row"><kbd>*.확장자</kbd><span>그 확장자만 — 예: <code>*.pdf 유동성</code></span></div>
+    <div class="keys__row"><kbd>Ctrl-V</kbd><span>비주얼 ↔ 텍스트 미리보기 토글</span></div>
+    <div class="keys__row"><kbd>Ctrl-F</kbd><span>범위: 전체 → 파일명 → 내용</span></div>
+    <div class="keys__row"><kbd>Ctrl-H</kbd><span>숨김 / .gitignore 포함 토글</span></div>
+    <div class="keys__row"><kbd>Enter</kbd><span>열기 (텍스트→에디터, 문서→기본 앱)</span></div>
+    <div class="keys__row"><kbd>Ctrl-O</kbd><span>Finder에서 보기</span></div>
+    <div class="keys__row"><kbd>Ctrl-E</kbd><span>결과를 Markdown으로 내보내기</span></div>
+    <div class="keys__row"><kbd>Ctrl-Y</kbd><span>선택 경로 클립보드 복사</span></div>
+    <div class="keys__row"><kbd>Ctrl-G</kbd><span>선택 파일 zip으로 모으기</span></div>
   </div>
 </section>
 
-<!-- ===================== KEYMAP ===================== -->
-<section class="section" id="keys" aria-labelledby="keys-h">
-  <h2 id="keys-h" class="section__title" data-glitch="ev --help">ev --help</h2>
-  <div class="window">
-    <div class="window__bar">
-      <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
-      <span class="window__title">keybindings</span>
-    </div>
-    <div class="window__body">
-      <table class="keys">
-        <tbody>
-          <tr><td class="keys__k">타이핑</td><td class="keys__d">즉시 검색 (파일명 + 내용 동시)</td></tr>
-          <tr><td class="keys__k">*.확장자</td><td class="keys__d">그 확장자만 필터 — 예: <span class="amber">*.pdf 유동성</span> = pdf 안에서 검색</td></tr>
-          <tr><td class="keys__k">Ctrl-F</td><td class="keys__d">범위 순환: 전체 <span class="amber">search&gt;</span> → 파일명 <span class="amber">name&gt;</span> → 내용 <span class="amber">text&gt;</span></td></tr>
-          <tr><td class="keys__k">Ctrl-H</td><td class="keys__d">숨김파일 / .gitignore 포함 토글</td></tr>
-          <tr><td class="keys__k">Enter</td><td class="keys__d">텍스트→에디터(해당 줄) · hwpx→pager · docx/pdf/기타→기본 앱</td></tr>
-          <tr><td class="keys__k">Ctrl-O</td><td class="keys__d">선택 파일을 Finder에서 열기</td></tr>
-          <tr><td class="keys__k">Tab</td><td class="keys__d">항목 마킹(다중 선택) · <span class="amber">Ctrl-A</span> 전체 토글</td></tr>
-          <tr><td class="keys__k">Ctrl-E</td><td class="keys__d">선택(없으면 현재) 결과를 Markdown으로 내보내기</td></tr>
-          <tr><td class="keys__k">Ctrl-Y</td><td class="keys__d">선택(없으면 현재) 경로 클립보드 복사</td></tr>
-          <tr><td class="keys__k">Ctrl-G</td><td class="keys__d">선택(없으면 현재) 파일을 zip으로 모으기</td></tr>
-          <tr><td class="keys__k">?</td><td class="keys__d">미리보기 창 토글</td></tr>
-          <tr><td class="keys__k">Esc</td><td class="keys__d">검색어 지우기 (비우면 파일 목록으로 복귀)</td></tr>
-          <tr><td class="keys__k">Ctrl-C</td><td class="keys__d">종료</td></tr>
-        </tbody>
-      </table>
-    </div>
+<!-- ===================== CLI ===================== -->
+<section class="cli">
+  <div class="cli__head reveal">
+    <h2 class="h2">스크립트에도 그대로.</h2>
+    <p class="lead">대화형 TUI가 전부가 아니다. 파이프라인에 끼워 쓰는 비대화형 CLI.</p>
   </div>
-</section>
+  <div class="code-card code-card--plain reveal">
+<pre><code><span class="c-cmd">ev -l</span> [디렉터리]              <span class="c-cmt"># 파일 목록</span>
+<span class="c-cmd">ev -g</span> &lt;검색어&gt; [디렉터리]     <span class="c-cmt"># 내용 검색 (hwpx/docx/pdf)</span>
+<span class="c-cmd">ev -x</span> &lt;파일&gt;                  <span class="c-cmt"># 평문 추출</span>
+<span class="c-cmd">ev --to-txt</span> &lt;디렉터리&gt;        <span class="c-cmt"># 문서 일괄 .txt 변환</span>
 
-<!-- ===================== EXPORT / CLI ===================== -->
-<section class="section" aria-labelledby="cli-h">
-  <h2 id="cli-h" class="section__title" data-glitch="// EXPORT">// EXPORT</h2>
-  <div class="grid grid--2">
-    <div class="window">
-      <div class="window__bar">
-        <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
-        <span class="window__title">비대화형 / 파이프</span>
-      </div>
-      <div class="window__body">
-<pre class="code"><span class="c-cmd">ev -l</span> [디렉터리]              <span class="c-comment"># 파일 목록</span>
-<span class="c-cmd">ev -g</span> &lt;검색어&gt; [디렉터리]     <span class="c-comment"># 내용 검색 (hwpx/docx/pdf)</span>
-<span class="c-cmd">ev -x</span> &lt;파일&gt;                  <span class="c-comment"># 평문 추출</span>
-<span class="c-cmd">ev --to-txt</span> &lt;디렉터리&gt;        <span class="c-comment"># 문서 일괄 .txt 변환</span>
-
-<span class="c-comment"># --format paths|lines|md|csv|json</span>
 <span class="c-cmd">ev -g</span> 유동성 ~/docs --format md &gt; report.md
-<span class="c-cmd">ev -l</span> ~/work --json | jq .</pre>
-      </div>
-    </div>
-    <div class="window">
-      <div class="window__bar">
-        <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
-        <span class="window__title">TUI에서 바로 내보내기</span>
-      </div>
-      <div class="window__body">
-        <table class="keys">
-          <tbody>
-            <tr><td class="keys__k">Tab</td><td class="keys__d">결과 마킹 → 선택분만 대상</td></tr>
-            <tr><td class="keys__k">Ctrl-E</td><td class="keys__d">Markdown 리포트로 저장</td></tr>
-            <tr><td class="keys__k">Ctrl-Y</td><td class="keys__d">경로 클립보드 복사</td></tr>
-            <tr><td class="keys__k">Ctrl-G</td><td class="keys__d">선택 파일 zip으로 모으기</td></tr>
-          </tbody>
-        </table>
-        <p class="stats__note">저장 위치: <span class="amber">$EV_EXPORT_DIR</span> (기본 <span class="glow">~</span>)</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== DOC SEARCH ===================== -->
-<section class="section" aria-labelledby="doc-h">
-  <h2 id="doc-h" class="section__title" data-glitch="// HWPX · DOCX · PPTX · XLSX · PDF">// HWPX · DOCX · PPTX · XLSX · PDF</h2>
-  <div class="grid grid--2">
-    <div class="window">
-      <div class="window__bar">
-        <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
-        <span class="window__title">how it works</span>
-      </div>
-      <div class="window__body">
-<pre class="diagram">검색어 입력
-  │
-  ├─ 일반 파일 ───────────→ rg 직접 검색
-  │
-  └─ *.hwpx/docx/pptx/xlsx/pdf
-        │
-        ▼
-     <span class="amber">ev-extract</span>  (unzip + 태그 제거)
-        │
-        ▼
-     추출 텍스트를 rg 가 검색
-        │
-        ▼
-     <span class="glow">원본 파일 경로로 결과 표시</span></pre>
-      </div>
-    </div>
-    <div class="window">
-      <div class="window__bar">
-        <span class="window__dot"></span><span class="window__dot"></span><span class="window__dot"></span>
-        <span class="window__title">coverage</span>
-      </div>
-      <div class="window__body stats">
-        <div class="stat"><span class="stat__label">파일명 검색</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
-        <div class="stat"><span class="stat__label">텍스트 내용</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
-        <div class="stat"><span class="stat__label">hwpx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
-        <div class="stat"><span class="stat__label">docx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
-        <div class="stat"><span class="stat__label">pptx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
-        <div class="stat"><span class="stat__label">xlsx 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
-        <div class="stat"><span class="stat__label">pdf 본문</span><span class="stat__bar" data-fill="100"></span><span class="stat__val">100%</span></div>
-        <div class="stat"><span class="stat__label">인덱스/캐시</span><span class="stat__bar" data-fill="0"></span><span class="stat__val">0 — 불필요</span></div>
-        <p class="stats__note">한글·한컴오피스, MS Word가 <span class="amber">없어도</span> 내용을 검색하고 읽는다.</p>
-      </div>
-    </div>
+<span class="c-cmd">ev -l</span> ~/work --json | jq .</code></pre>
   </div>
 </section>
 
@@ -244,15 +145,14 @@
 
 <!-- ===================== FOOTER ===================== -->
 <footer class="footer">
-  <div class="footer__rule">================================================================</div>
-  <p class="footer__line"><span class="amber">[OK]</span> built with <span class="glow">rg</span> + <span class="glow">fzf</span> + <span class="glow">fd</span> · 단일 zsh 스크립트</p>
-  <p class="footer__line">
-    <a href="https://github.com/seongilp/ev" target="_blank" rel="noopener">github.com/seongilp/ev</a>
-    &nbsp;//&nbsp; MIT-ish &nbsp;//&nbsp; macOS
+  <p class="footer__brand">ev</p>
+  <p class="footer__line">built on rg · fzf · fd — 단일 zsh 스크립트</p>
+  <p class="footer__links">
+    <a href="https://github.com/rescenedev/ev" target="_blank" rel="noopener">github.com/rescenedev/ev</a>
+    <span class="footer__sep">·</span> MIT <span class="footer__sep">·</span> macOS
   </p>
-  <p class="footer__eof">you@mac:~$ <span class="cursor" aria-hidden="true">█</span></p>
 </footer>
 
-<script src="main.js?v=6"></script>
+<script src="main.js?v=1"></script>
 </body>
 </html>
