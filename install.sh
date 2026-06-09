@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# ev installer — curl -fsSL https://seongilp.github.io/ev/install.sh | bash
+# ev installer — curl -fsSL https://rescenedev.github.io/ev/install.sh | bash
 set -euo pipefail
 
-REPO="https://github.com/seongilp/ev"
+REPO="https://github.com/rescenedev/ev"
 DEST="${EV_INSTALL_DIR:-$HOME/.ev}"
 BIN_DIR="${EV_BIN_DIR:-$HOME/.local/bin}"
 

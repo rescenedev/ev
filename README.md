@@ -27,6 +27,7 @@ Ctrl-F: 범위  Ctrl-H: 숨김  Enter: 열기  Ctrl-O: Finder  Ctrl-Y: 복사  ?
 - **즉시성** — 입력할 때마다 `rg`/`fd`가 다시 돌며 결과가 실시간으로 갱신된다. 엔터 칠 필요 없음.
 - **이름 + 내용 한 번에** — 파일명 매칭과 파일 내용 매칭을 합쳐 보여준다. 따로 도구를 바꿀 필요 없음.
 - **한글 문서(.hwpx) 관통** — zip+XML을 풀어 본문을 추출, 한글 앱 없이도 **내용 검색·미리보기·읽기**가 된다.
+- **Finder처럼 미리보기** — `Ctrl-V`로 문서 첫 페이지를 터미널 안에 이미지로 렌더(QuickLook + chafa). Ghostty/kitty/WezTerm.
 - **가볍다** — 컴파일 없는 단일 스크립트. 의존성은 전부 `brew` 한 줄. 없으면 **자동 설치**.
 
 ## 설치
@@ -34,18 +35,18 @@ Ctrl-F: 범위  Ctrl-H: 숨김  Enter: 열기  Ctrl-O: Finder  Ctrl-Y: 복사  ?
 ### Homebrew (권장)
 
 ```bash
-brew tap seongilp/ev      # 한 번만
+brew tap rescenedev/tap   # 한 번만
 brew install ev           # 이후엔 그냥 ev
 brew upgrade ev           # 업데이트
 ```
 
 `rg`/`fzf`/`fd`는 의존성으로 함께 설치되고, `bat`(미리보기 하이라이트)·`poppler`(PDF 추출)는 권장 의존성으로 같이 깔린다.
-최신 `main`을 쓰려면 `brew install --HEAD seongilp/ev/ev`.
+최신 `main`을 쓰려면 `brew install --HEAD rescenedev/tap/ev`.
 
 ### 설치 스크립트
 
 ```bash
-curl -fsSL https://seongilp.github.io/ev/install.sh | bash
+curl -fsSL https://rescenedev.github.io/ev/install.sh | bash
 ```
 
 `~/.ev`에 받아 `~/.local/bin/ev`로 링크한다. `rg/fzf/fd`는 첫 실행 시 자동 설치.
@@ -54,7 +55,7 @@ curl -fsSL https://seongilp.github.io/ev/install.sh | bash
 <details><summary>직접 clone 하려면</summary>
 
 ```bash
-git clone https://github.com/seongilp/ev && cd ev && ./ev
+git clone https://github.com/rescenedev/ev && cd ev && ./ev
 sudo ln -s "$PWD/ev" /usr/local/bin/ev          # 또는
 mkdir -p ~/.local/bin && ln -s "$PWD/ev" ~/.local/bin/ev
 ```
