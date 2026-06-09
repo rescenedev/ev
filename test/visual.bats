@@ -32,6 +32,21 @@ setup() {
   [ "$output" = "chafa" ]
 }
 
+# ── ev_visual_previewable ────────────────────────────────────
+@test "office docs are visual previewable" {
+  for f in a.hwpx a.docx a.pptx a.xlsx a.pdf A.PDF report.HWPX; do
+    run ev_visual_previewable "$f"
+    [ "$status" -eq 0 ]
+  done
+}
+
+@test "non-document files are not visual previewable" {
+  for f in notes.md readme.txt main.sh photo.png data.json a.go; do
+    run ev_visual_previewable "$f"
+    [ "$status" -ne 0 ]
+  done
+}
+
 # ── ev_clear_images ──────────────────────────────────────────
 @test "clear images emits kitty delete-all escape" {
   run ev_clear_images

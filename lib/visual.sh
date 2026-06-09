@@ -25,6 +25,15 @@ ev_thumb_path() {
   printf '%s/%s.png\n' "$dir" "$key"
 }
 
+# 비주얼(퀵룩 이미지) 미리보기를 적용할 문서 포맷인지 판정.
+# 문서(hwpx/docx/pptx/xlsx/pdf)만 이미지로 렌더하고, 그 외는 텍스트로 보여준다.
+ev_visual_previewable() {
+  case "$1" in
+    *.hwpx|*.HWPX|*.docx|*.DOCX|*.pptx|*.PPTX|*.xlsx|*.XLSX|*.pdf|*.PDF) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 # 화면에 그려둔 모든 kitty 이미지를 삭제하는 escape 출력 (미리보기 전환 시 잔상 제거).
 ev_clear_images() {
   printf '\033_Ga=d,d=A\033\\'
