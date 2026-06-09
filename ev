@@ -10,6 +10,7 @@ source "$EV_HOME/lib/preview.sh"
 source "$EV_HOME/lib/search.sh"
 source "$EV_HOME/lib/extract.sh"
 source "$EV_HOME/lib/export.sh"
+source "$EV_HOME/lib/visual.sh"
 
 EV_EXTRACTOR="$EV_HOME/libexec/ev-extract"   # rg --pre / 미리보기용 텍스트 추출기
 EV_EXPORT_DIR="${EV_EXPORT_DIR:-$HOME}"       # export/zip 저장 위치
@@ -18,11 +19,13 @@ EV_CLIP="${EV_CLIP:-pbcopy}"                  # 클립보드 명령 (테스트�
 # ── 상태 헬퍼 ────────────────────────────────────────────────
 _ev_hidden() { cat "$EV_STATE/hidden"; }
 _ev_scope()  { cat "$EV_STATE/scope"; }   # both | files | content
+_ev_visual() { cat "$EV_STATE/visual"; }  # 0 | 1 (인라인 이미지 미리보기)
 
 # ── 서브커맨드 ───────────────────────────────────────────────
 _ev_init() {
   printf '0\n'    > "$EV_STATE/hidden"
   printf 'both\n' > "$EV_STATE/scope"
+  printf '0\n'    > "$EV_STATE/visual"
 }
 
 _ev_run_argv() {            # stdin: 토큰(줄당 1개) → 실행
@@ -73,6 +76,12 @@ _ev_toggle_hidden() {
   printf 'reload(%s __search)' "$EV_HOME/ev"
 }
 
+# 비주얼(인라인 이미지) ↔ 텍스트 미리보기 토글. 바인딩의 refresh-preview가 화면 갱신.
+_ev_toggle_visual() {
+  if [ "$(_ev_visual)" = 0 ]; then printf '1\n' > "$EV_STATE/visual"
+  else printf '0\n' > "$EV_STATE/visual"; fi
+}
+
 # 추출 텍스트를 줄번호와 함께, 매칭 줄 강조해서 출력
 _ev_preview_extracted() {   # 인자: file [line]
   local file="$1" line="${2:-}"
@@ -87,8 +96,35 @@ _ev_preview_extracted() {   # 인자: file [line]
   fi
 }
 
+# 비주얼 미리보기: 성공 시 이미지 렌더(return 0). 불가하면 한 줄 힌트 출력 후 return 1
+# (호출부가 텍스트 미리보기로 폴백한다).
+_ev_preview_visual() {      # 인자: file
+  local file="$1"
+  if ! ev_graphics_supported; then
+    printf '[hint] 이 터미널은 인라인 이미지를 지원하지 않습니다 (Ctrl-V로 텍스트 보기)\n\n'; return 1
+  fi
+  if [ -z "$(ev_visual_renderer)" ]; then
+    printf '[hint] 비주얼 미리보기: brew install chafa\n\n'; return 1
+  fi
+  if ! command -v swiftc >/dev/null 2>&1; then
+    printf '[hint] 비주얼 미리보기: Xcode CLT 필요 (xcode-select --install)\n\n'; return 1
+  fi
+  local thumbs="$EV_STATE/thumbs" png
+  mkdir -p "$thumbs"
+  png="$(ev_thumb_path "$file" "$thumbs")"
+  if ! ev_make_thumb "$file" "$png"; then
+    printf '[hint] 이 파일은 비주얼 미리보기를 생성할 수 없습니다\n\n'; return 1
+  fi
+  local cols="${FZF_PREVIEW_COLUMNS:-80}" lines="${FZF_PREVIEW_LINES:-40}"
+  eval "$(ev_render_image_cmd "$png" "$cols" "$lines")" 2>/dev/null && return 0
+  printf '[hint] 이미지 렌더 실패 (chafa)\n\n'; return 1
+}
+
 _ev_preview() {             # 인자: file [line]
   local file="$1" line="${2:-}"
+  if [ "${EV_STATE:+x}" = x ] && [ -f "$EV_STATE/visual" ] && [ "$(_ev_visual)" = 1 ]; then
+    _ev_preview_visual "$file" && return 0
+  fi
   case "$file" in
     *.hwpx|*.HWPX|*.docx|*.DOCX|*.pptx|*.PPTX|*.xlsx|*.XLSX)
       _ev_preview_extracted "$file" "$line" ;;
@@ -262,6 +298,7 @@ _ev_main() {
     --bind "ctrl-h:transform($self __toggle-hidden)" \
     --bind "enter:become($self __open {1} {2})" \
     --bind "ctrl-o:execute-silent(open -R {1})" \
+    --bind "ctrl-v:execute-silent($self __toggle-visual)+refresh-preview" \
     --bind 'tab:toggle+down' \
     --bind 'shift-tab:toggle+up' \
     --bind 'ctrl-a:toggle-all' \
@@ -270,7 +307,7 @@ _ev_main() {
     --bind "ctrl-g:transform-header($self __zip-files {+f})" \
     --bind '?:toggle-preview' \
     --bind 'esc:clear-query' \
-    --header $'Ctrl-F 범위  Ctrl-H 숨김  Enter 열기  Ctrl-O Finder  Esc 지움  Ctrl-C 종료\nTab 선택  Ctrl-A 전체  Ctrl-E 내보내기(md)  Ctrl-Y 복사  Ctrl-G zip'
+    --header $'Ctrl-F 범위  Ctrl-H 숨김  Ctrl-V 비주얼  Enter 열기  Ctrl-O Finder  Esc 지움  Ctrl-C 종료\nTab 선택  Ctrl-A 전체  Ctrl-E 내보내기(md)  Ctrl-Y 복사  Ctrl-G zip'
 }
 
 _ev_help() {
@@ -302,6 +339,7 @@ case "${1:-}" in
   __search)        _ev_search ;;
   __cycle-scope)   _ev_cycle_scope ;;
   __toggle-hidden) _ev_toggle_hidden ;;
+  __toggle-visual) _ev_toggle_visual ;;
   __preview)        shift; _ev_preview "$@" ;;
   __open)           shift; _ev_open "$@" ;;
   __export-results) shift; _ev_export_results "$@" ;;
